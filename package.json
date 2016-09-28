@@ -1,0 +1,18 @@
+{
+  "name": "rm-webhook",
+  "version": "1.0.0",
+  "description": "WebHook CLI wrapper for RISD Media self-hosted WebHook",
+  "bin": {
+    "rm-wh": "bin/cli"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "wh": "risd/webhook"
+  }
+}

@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+
+var debug = require('debug')('rm-wh:cli');
+
+var fs = require('fs');
+var usage = fs.readFileSync(__dirname + '/usage.md').toString();
+
+var wh = require('../index.js');
+
+function getConf () {
+  function getUserHome() {
+    return process.env[
+        (process.platform == 'win32') ?
+          'USERPROFILE' : 'HOME'
+      ];
+  }
+  var defaultConfPath = getUserHome() + '/.risdmedia/wh.json';
+  try {
+    var conf = JSON.parse(
+      fs.readFileSync(defaultConfPath)
+        .toString());
+  } catch (e) {
+    console.log(
+      'Requires a configuration file at ~/.risdmedia/wh.json');
+    return;
+  }
+
+  var quit = false;
+  var required = ['embedly', 'firebase', 'server'];
+
+  required.forEach(ensureRequired.bind(conf));
+
+  function ensureRequired (key) {
+    if (!this[key]) {
+      quit = true;
+      console.log(
+        'Configuration requires a value for key: ', key);
+    }
+  }
+
+  if (quit) return;
+  return conf;
+}
+
+var conf = getConf();
+var argv = ['node', 'wh',
+    '-f', conf.firebase,
+    '-s', conf.server,
+    '-m', conf.embedly,
+    '-b', conf.generate,
+  ].concat(
+    process.argv.slice(2));
+
+// the last arg for these commands is the site
+// name which in our case, needs to risd.systems
+// to be affixed
+['init', 'create', 'recreate', 'delete']
+  .map(function (cmd) {
+    // return the index of thhe cmd in the arg list
+    return argv.indexOf(cmd);
+  })
+  // we only want matches
+  .filter(function (cmdIndex) { return cmdIndex > -1; })
+  .forEach(function (cmdIndex, eachIndex) {
+    // for each match (should be only one)
+    if (eachIndex === 0) {
+      var firstHalfArgv = argv.slice(0, cmdIndex + 1);
+      var secondHalfArgv = argv.slice(cmdIndex + 2);
+      argv = firstHalfArgv.concat([
+          [
+            argv[cmdIndex + 1],
+            conf.domain,
+          ].join('.')
+          .concat(secondHalfArgv)
+        ]);
+    }
+  });
+
+debug('args: ', argv.join(' '));
+wh(argv);
