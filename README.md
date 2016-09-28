@@ -26,6 +26,7 @@ The values of which are in 1Password as a secure note under the title `rm-webhoo
 ```
 rm-wh create <siteName>
 rm-wh delete <siteName>
+rm-wh init <siteName>
 rm-wh serve
 rm-wh deploy
 rm-wh backup <toFile>
