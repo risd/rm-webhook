@@ -26,7 +26,8 @@ function getConf () {
   }
 
   var quit = false;
-  var required = ['embedly', 'firebase', 'server', 'generate'];
+  var required = ['embedly', 'firebase', 'server', 'generate',
+                  'imgix_host', 'imgix_secret'];
 
   required.forEach(ensureRequired.bind(conf));
 
@@ -48,6 +49,8 @@ var argv = ['node', 'wh',
     '-s', conf.server,
     '-m', conf.embedly,
     '-b', conf.generate,
+    '--imgix_host', conf.imgix_host,
+    '--imgix_secret', conf.imgix_secret,
   ].concat(
     process.argv.slice(2));
 
