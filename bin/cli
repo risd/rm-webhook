@@ -66,18 +66,26 @@ var argv = ['node', 'wh',
   .filter(function (cmdIndex) { return cmdIndex > -1; })
   .forEach(function (cmdIndex, eachIndex) {
     // for each match (should be only one)
-    if (eachIndex === 0) {
-      var firstHalfArgv = argv.slice(0, cmdIndex + 1);
+    var siteNameIndex = cmdIndex + 1;
+    var siteName = function () {
+      return argv[siteNameIndex];
+    }
+    if (eachIndex === 0 && siteNameRequiresDomain(siteName())) {
+      var siteNameWithDomain = function () {
+        return [ siteName(), conf.domain ].join('.')
+      }
+      var firstHalfArgv = argv.slice(0, siteNameIndex);
       var secondHalfArgv = argv.slice(cmdIndex + 2);
       argv = firstHalfArgv.concat([
-          [
-            argv[cmdIndex + 1],
-            conf.domain,
-          ].join('.')
-          .concat(secondHalfArgv)
+          [ siteNameWithDomain() ].concat(secondHalfArgv)
         ]);
     }
   });
 
 debug('args: ', argv.join(' '));
 wh(argv);
+
+
+function siteNameRequiresDomain (siteName) {
+  return (siteName.indexOf('.') === -1) ? true : false;
+}
