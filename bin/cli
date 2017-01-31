@@ -49,7 +49,7 @@ var argv = ['node', 'wh',
     '-s', conf.server,
     '-m', conf.embedly,
     '-b', conf.generate,
-    '--imgix_host', conf.imgix_host,
+    '--imgix_host', conf.imgix_host, 
     '--imgix_secret', conf.imgix_secret,
   ].concat(
     process.argv.slice(2));
@@ -68,8 +68,7 @@ var argv = ['node', 'wh',
     // for each match (should be only one)
     var siteNameIndex = cmdIndex + 1;
     var siteName = function () {
-      var name = argv[siteNameIndex];
-      if ( typeof name === 'string' )
+      if ( typeof argv[siteNameIndex] === 'string' )
         return argv[siteNameIndex];
       else
         throw new Error(
