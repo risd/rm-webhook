@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "commander": "^2.9.0",
     "debug": "^2.2.0",
     "wh": "risd/webhook"
   }
