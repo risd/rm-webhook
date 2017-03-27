@@ -184,6 +184,11 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 				siteName: optionallyAddDomain( siteName ),
 				firebaseName: configuration.firebase,
 				firebaseToken: configuration.firebaseToken,
+        embedly: configuration.embedly,
+        server: configuration.server,
+        generate: configuration.generate,
+        imgix_host: configuration.imgix_host,
+        imgix_secret: configuration.imgix_secret,
 				email: configuration.email,
 				npm: configuration.npm,
         node: configuration.node,
@@ -461,6 +466,7 @@ function getMediaConfiguration ( confPath, callback ) {
     var configuration = JSON.parse(
       fs.readFileSync(configurationPath)
         .toString());
+    configuration.http = true;  // default to http until server is available behind TLS
   } catch ( error ) {
   	error.message = 'Pass in a valid configuration path, or use the default at ' + defaultConfPath;
     return callback( error )
