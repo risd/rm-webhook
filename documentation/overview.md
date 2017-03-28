@@ -5,7 +5,7 @@ Primary Command Line Interface (CLI) into RISD webhook.
 
 ### Requirements & Installation
 
-In order to use the `rm-wh` tool, the computer must have `node` & `npm` commands available. Additionally, the interface anticipates finding a JSON file of configuration at `~/.risdmedia/wh.json`. The contents of this JSON file should match the contents of the `risd.systems configuration - wh.json` document in the shared RISD Media 1Password vault. `git` is also a core piece of how the `rm-wh` tool is designed to work. This document will speak to a git branching model by the name of [git-flow][git-flow].
+In order to use the `rm-wh` tool, the computer must have [`node` & `npm`][node-npm] commands available. Additionally, the interface anticipates finding a JSON file of configuration at `~/.risdmedia/wh.json`. The contents of this JSON file should match the contents of the `risd.systems configuration - wh.json` document in the shared RISD Media 1Password vault. `git` is also a core piece of how the `rm-wh` tool is designed to work. This document will speak to a git branching model by the name of [git-flow][git-flow].
 
 The contents of the `wh.json` file are used to pass in common configuration options, which can each be overridden when executing `rm-wh`.
 
@@ -28,23 +28,48 @@ Once deployed, the website will be available at `new-site.risd.systems`, and the
 Serve is a command that is used to update templates, determining the relationship between content in the CMS, and the pages where that content flows in. As these are being defined, `rm-wh deploy` can be used to push edits that are made locally, to the site's URL.
 
 `rm-wh deploys`
-The deploys interface can be used to manage deploying different sets of templates that are all backed by the same CMS instance. Executing this command will show the current site's deploy configuration. If none have been set, then a default configuration will be used.
+The deploys interface can be used to manage deploying different sets of templates that are all backed by the same CMS instance. Executing this command will show the current site's deploy configuration. If none have been set, then a default configuration will be used. Given our `new-site` example, running the command on a site that has default configuration gives this output:
+
+```
+Deploys:
+---
+URL & bucket: new-site.risd.systems
+Git branch:   master
+---
+```
 
 Each deploy is configured with:
 
 - `bucket`: the name of the Google Storage Bucket where the built site is pushed. This is the unique identifier for setting or removing a deploy endpoint.
 - `branch`: the name of the `git` branch where the templates are stored.
 
-For our `new-site` example, the default configuration would be:
-
-- branch: master
-- bucket: new-site.risd.systems
 
 `rm-wh deploys:set new-site.risd.edu`
-The set command can be used to add additional buckets. If no `--branch` flag is set, the current branch is used.
+The set command can be used to add additional buckets. If no `--branch` flag is set, the current branch is used. For example, to set a deploy bucket for the `develop` branch, when currently on any other branch, the command would be `rm-wh deploys:set dev.new-site.risd.edu --branch=develop`. Running this command would give you the following output:
 
-`rm-wh deploys:remove deprecated-site.risd.edu`
-The remove command will remove the bucket as a location to deploy a website to.
+```
+Deploys:
+---
+URL & bucket: new-site.risd.systems
+Git branch:   master
+---
+URL & bucket: dev.new-site.risd.systems
+Git branch:   develop
+---
+```
+
+`rm-wh deploys:remove new-site.risd.systems`
+The remove command will remove the bucket as a location to deploy a website to. The output of the command will give the remaining configuration. Given our example, we would see:
 
 
+```
+Deploys:
+---
+URL & bucket: dev.new-site.risd.systems
+Git branch:   develop
+---
+```
+
+
+[node-npm]:https://nodejs.org/en/download/
 [git-flow]:https://github.com/nvie/gitflow
