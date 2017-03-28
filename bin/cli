@@ -132,7 +132,8 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 			wh.push( {
 				server: configuration.server,
 				firebaseToken: configuration.firebaseToken,
-				http: configuration.http,
+        http: configuration.http,
+        branch: configuration.branch,
 			}, onExit )
 
 		} )
