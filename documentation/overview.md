@@ -3,13 +3,16 @@
 Primary Command Line Interface (CLI) into RISD webhook.
 
 
-### Usage
+### Requirements & Installation
 
 In order to use the `rm-wh` tool, the computer must have `node` & `npm` commands available. Additionally, the interface anticipates finding a JSON file of configuration at `~/.risdmedia/wh.json`. The contents of this JSON file should match the contents of the `risd.systems configuration - wh.json` document in the shared RISD Media 1Password vault. `git` is also a core piece of how the `rm-wh` tool is designed to work. This document will speak to a git branching model by the name of [git-flow][git-flow].
 
 The contents of the `wh.json` file are used to pass in common configuration options, which can each be overridden when executing `rm-wh`.
 
 To install:  `npm install rm-webhook --global`
+
+
+### Usage
 
 Once installed `rm-wh` will be accessible. Executing this command will show the available commands, and options that can be used to create, delete, and otherwise manage webhook sites.
 
