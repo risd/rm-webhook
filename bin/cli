@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var debug = require('debug')('rm-wh:cli');
+var objectAssign = require( 'object-assign' );
 
 var program = require( 'commander' )
 // var usage = fs.readFileSync(__dirname + '/usage.md').toString();
@@ -53,7 +54,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 		if ( program.email ) fromCli.email = program.email;
 		if ( program.cache ) fromCli.cache = program.cache;
 
-		return Object.assign( mediaConfiguration, fromCli )
+		return objectAssign( mediaConfiguration, fromCli )
 	}
 
 	function onExit ( error ) {
