@@ -154,7 +154,6 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 				imgix_host: configuration.imgix_host,
 				imgix_secret: configuration.imgix_secret,
 				firebaseName: configuration.firebase,
-				firebaseToken: configuration.firebaseToken,
 				npm: configuration.npm,
         node: configuration.node,
         grunt: configuration.grunt,
@@ -171,7 +170,6 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 			wh.delete( {
 				siteName: optionallyAddDomain( siteName ),
 				firebaseName: configuration.firebase,
-				firebaseToken: configuration.firebaseToken,
 			}, onExit )
 
 		}, onExit )
@@ -185,7 +183,6 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 			wh.init( {
 				siteName: optionallyAddDomain( siteName ),
 				firebaseName: configuration.firebase,
-				firebaseToken: configuration.firebaseToken,
         embedly: configuration.embedly,
         server: configuration.server,
         generate: configuration.generate,
