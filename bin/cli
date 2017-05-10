@@ -10,7 +10,6 @@ var wh = require('wh').lib;
 getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) {
 	if ( error ) return console.log( error );
 
-
 	/**
 	 * Expects a site name. If there is a `.` in the name, a domain is assumed
 	 * otherwise, `mediaConfiguration.domain` is appened as the domain
@@ -52,13 +51,14 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 		if ( program.node ) fromCli.node = program.node;
 		if ( program.grunt ) fromCli.grunt = program.grunt;
 		if ( program.email ) fromCli.email = program.email;
-		if ( program.cache ) fromCli.cache = program.cache;
+    if ( program.cache ) fromCli.cache = program.cache;
+		if ( program.types ) fromCli.types = program.types;
 
 		return objectAssign( mediaConfiguration, fromCli )
 	}
 
 	function onExit ( error ) {
-		// if ( error ) console.log( error );
+		if ( error ) console.log( error.message );
 		process.exit();
 	}
 
@@ -77,6 +77,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .option( '-g, --grunt [gruntPath]', 'Use this grunt executable over the default one (grunt)' )
     .option( '-e, --email [email]', 'The e-mail address to use when using the --token option' )
     .option( '-c, --cache [cacheDir]', 'Sets the directory to use for npm cache' )
+    .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
 
 
 	program.command( 'deploys' )
@@ -363,7 +364,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 
   		wh.resetKeys({
   			firebaseName: configuration.firebase,
-  			firebaseToken: configuration.token,
+  			firebaseToken: configuration.firebaseToken,
   		})
   	})
 
@@ -375,7 +376,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 
   		wh.resetKeys({
   			firebaseName: configuration.firebase,
-  			firebaseToken: configuration.token,
+  			firebaseToken: configuration.firebaseToken,
   			resetUserPasswords: false,
   		})
   	})
@@ -388,7 +389,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 
   		wh.resetKeys({
   			firebaseName: configuration.firebase,
-  			firebaseToken: configuration.token,
+  			firebaseToken: configuration.firebaseToken,
   			resetSiteKeys: false,
   		})
   	})
@@ -410,6 +411,25 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
         email: configuration.email,
         cache: configuration.cache
       });
+    });
+
+  program.command('clone-content-under <namespace>')
+    .description('Clones content type and current data under a new namespace.')
+    .action(function (namespace) {
+      
+      var contentTypes = ((typeof program.types === 'string')
+        ? program.types.split(',')
+        : [] )
+
+      var configuration = extendMediaConfigurationWithProgram();
+
+      wh.cloneContentUnder({
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+        namespace: namespace,
+        contentTypes: contentTypes,
+      }, onExit);
+
     });
 
   program.command('echo-options')
