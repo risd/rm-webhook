@@ -9,7 +9,7 @@ var wh = require('wh').lib;
 
 getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) {
   if ( error ) return console.log( error );
-console.log( mediaConfiguration )
+
   /**
    * Expects a site name. If there is a `.` in the name, a domain is assumed
    * otherwise, `mediaConfiguration.domain` is appened as the domain
