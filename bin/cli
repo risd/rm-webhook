@@ -8,69 +8,70 @@ var program = require( 'commander' )
 var wh = require('wh').lib;
 
 getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) {
-	if ( error ) return console.log( error );
+  if ( error ) return console.log( error );
+console.log( mediaConfiguration )
+  /**
+   * Expects a site name. If there is a `.` in the name, a domain is assumed
+   * otherwise, `mediaConfiguration.domain` is appened as the domain
+   * 
+   * @param  {string} site The name of the site
+   * @return {string} site The name of the site with 
+   */
+  function optionallyAddDomain ( site ) {
+    if ( typeof site !== 'string' ) return null;
 
-	/**
-	 * Expects a site name. If there is a `.` in the name, a domain is assumed
-	 * otherwise, `mediaConfiguration.domain` is appened as the domain
-	 * 
-	 * @param  {string} site The name of the site
-	 * @return {string} site The name of the site with 
-	 */
-	function optionallyAddDomain ( site ) {
-		if ( typeof site !== 'string' ) return null;
+    var optionalDomain = mediaConfiguration.domain;
+    
+    var containsTLD = function () {
+      var indexOfPeriod = site.indexOf( '.' );
+      return indexOfPeriod === -1 ? false : true;
+    }
 
-		var optionalDomain = mediaConfiguration.domain;
-		
-		var containsTLD = function () {
-			var indexOfPeriod = site.indexOf( '.' );
-			return indexOfPeriod === -1 ? false : true;
-		}
+    var siteHasTLD = containsTLD( site );
+    if ( siteHasTLD === true ) return site;
+    else return [ site, optionalDomain ].join( '.' );
 
-		var siteHasTLD = containsTLD( site );
-		if ( siteHasTLD === true ) return site;
-		else return [ site, optionalDomain ].join( '.' );
+  }
 
-	}
+  function extendMediaConfigurationWithProgram () {
+    // A subset of keys from `program` are configuration, and not all,
+    // so we pull out the ones that we want and store them in `fromCli`
+    var fromCli = {}
 
-	function extendMediaConfigurationWithProgram () {
-		// A subset of keys from `program` are configuration, and not all,
-		// so we pull out the ones that we want and store them in `fromCli`
-		var fromCli = {}
-		
-		if ( program.firebase ) fromCli.firebase = program.firebase;
-		if ( program.token ) fromCli.firebaseToken = program.token;
-		if ( program.server ) fromCli.server = program.server;
-		if ( program.branch ) fromCli.branch = program.branch;
-		if ( program.http ) fromCli.http = program.http;
-		if ( program.embedly ) fromCli.embedly = program.embedly;
-		if ( program.generate ) fromCli.generate = program.generate;
-		if ( program.imgix_host ) fromCli.imgix_host = program.imgix_host;
-		if ( program.imgix_secret ) fromCli.imgix_secret = program.imgix_secret;
-		if ( program.npm ) fromCli.npm = program.npm;
-		if ( program.node ) fromCli.node = program.node;
-		if ( program.grunt ) fromCli.grunt = program.grunt;
-		if ( program.email ) fromCli.email = program.email;
+    if ( program.firebase ) fromCli.firebase = program.firebase;
+    if ( program.token ) fromCli.firebaseToken = program.token;
+    if ( program.server ) fromCli.server = program.server;
+    if ( program.branch ) fromCli.branch = program.branch;
+    if ( program.http ) fromCli.http = program.http;
+    if ( program.embedly ) fromCli.embedly = program.embedly;
+    if ( program.generate ) fromCli.generate = program.generate;
+    if ( program.imgix_host ) fromCli.imgix_host = program.imgix_host;
+    if ( program.imgix_secret ) fromCli.imgix_secret = program.imgix_secret;
+    if ( program.npm ) fromCli.npm = program.npm;
+    if ( program.node ) fromCli.node = program.node;
+    if ( program.grunt ) fromCli.grunt = program.grunt;
+    if ( program.email ) fromCli.email = program.email;
     if ( program.cache ) fromCli.cache = program.cache;
-		if ( program.types ) fromCli.types = program.types;
+    if ( program.types ) fromCli.types = program.types;
+    if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
 
-		return objectAssign( mediaConfiguration, fromCli )
-	}
+    return objectAssign( mediaConfiguration, fromCli )
+  }
 
-	function onExit ( error ) {
-		if ( error ) console.log( error.message );
-		process.exit();
-	}
+  function onExit ( error ) {
+    if ( error ) console.log( error.message );
+    process.exit();
+  }
 
-	program
-		.option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
-		.option( '-t, --token [authToken]', 'Use this auth token for firebase instead of prompting for login' )
-		.option( '-s, --server [uploadserver]', 'Use this server when uploading files, for self hosting mode' )
-		.option( '--branch [branch]', 'Use this git branch instead of the current branch' )
-		.option( '--http', 'Use http instead of default https as the server protocol' )
-		.option( '-m, --embedly [embedly]', 'Use this embedly key when writing .firebase.conf, for self hosting mode' )
-		.option( '-b, --generate [generate]', 'Use this generator URL when creating a new site, for self hosting mode' )
-		.option( '-h, --imgix_host [imgixhost]', 'Use this URL for imgix CDN serving, for self hosting mode' )
+  program
+    .option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
+    .option( '-t, --token [authToken]', 'Use this auth token for firebase instead of prompting for login' )
+    .option( '-s, --server [uploadserver]', 'Use this server when uploading files, for self hosting mode' )
+    .option( '--branch [branch]', 'Use this git branch instead of the current branch' )
+    .option( '--http', 'Use http instead of default https as the server protocol' )
+    .option( '-m, --embedly [embedly]', 'Use this embedly key when writing .firebase.conf, for self hosting mode' )
+    .option( '-b, --generate [generate]', 'Use this generator URL when creating a new site, for self hosting mode' )
+    .option( '-h, --imgix_host [imgixhost]', 'Use this URL for imgix CDN serving, for self hosting mode' )
     .option( '-x, --imgix_secret [imgixsecret]', 'Use this secret to sign imgix URLs, for self hosting mode' )
     .option( '-n, --npm [npmPath]', 'Use this npm executable over the default one (npm)' )
     .option( '-o, --node [nodePath]', 'Use this node executable over the default one (node)' )
@@ -78,130 +79,132 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .option( '-e, --email [email]', 'The e-mail address to use when using the --token option' )
     .option( '-c, --cache [cacheDir]', 'Sets the directory to use for npm cache' )
     .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
+    .option('--skipBuild', 'Skips the site build as a step to ensure templates are okay before deploying.')
 
 
-	program.command( 'deploys' )
-		.description( 'List all deploy configuration for the current webhook site' )
-		.action( function () {
+  program.command( 'deploys' )
+    .description( 'List all deploy configuration for the current webhook site' )
+    .action( function () {
 
-			var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-			wh.deploys( {
-				firebaseName: configuration.firebase,
-				firebaseToken: configuration.firebaseToken,
-			}, onExit )
+      wh.deploys( {
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+      }, onExit )
 
-		} )
+    } )
 
-	program.command( 'deploys:set <bucketName>' )
-		.description( 'Set a bucket as the deploy destination. Use the --branch flag to override setting the deploy to use the current branch\'s set of templates.' )
-		.action( function ( bucketName ) {
-			if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
+  program.command( 'deploys:set <bucketName>' )
+    .description( 'Set a bucket as the deploy destination. Use the --branch flag to override setting the deploy to use the current branch\'s set of templates.' )
+    .action( function ( bucketName ) {
+      if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
 
-			var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-			wh.deploys( {
-				firebaseName: configuration.firebase,
-				firebaseToken: configuration.firebaseToken,
-				branch: configuration.branch,
-				bucketSet: bucketName,
-			}, onExit )
+      wh.deploys( {
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+        branch: configuration.branch,
+        bucketSet: bucketName,
+      }, onExit )
 
-		} )
+    } )
 
-	program.command( 'deploys:remove <bucketName>' )
-		.description( 'Remove a bucket as a deploy destination.' )
-		.action( function ( bucketName ) {
-			if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
+  program.command( 'deploys:remove <bucketName>' )
+    .description( 'Remove a bucket as a deploy destination.' )
+    .action( function ( bucketName ) {
+      if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
 
-			var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-			wh.deploys( {
-				firebaseName: configuration.firebase,
-				firebaseToken: configuration.firebaseToken,
-				branch: configuration.branch,
-				bucketRemove: bucketName,
-			}, onExit )
+      wh.deploys( {
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+        branch: configuration.branch,
+        bucketRemove: bucketName,
+      }, onExit )
 
-		} )
+    } )
 
-	program.command( 'deploy' )
-		.description( 'Push a webhook directory to server' )
-		.action( function () {
+  program.command( 'deploy' )
+    .description( 'Push a webhook directory to server' )
+    .action( function () {
 
-			var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-			wh.push( {
-				server: configuration.server,
-				firebaseToken: configuration.firebaseToken,
+      wh.push( {
+        server: configuration.server,
+        firebaseToken: configuration.firebaseToken,
         http: configuration.http,
         branch: configuration.branch,
-			}, onExit )
+        skipBuild: configuration.skipBuild,
+      }, onExit )
 
-		} )
+    } )
 
-	program.command( 'create <siteName>' )
-		.description( 'Create a new webhook site.' )
-		.action( function ( siteName ) {
+  program.command( 'create <siteName>' )
+    .description( 'Create a new webhook site.' )
+    .action( function ( siteName ) {
 
-			var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-			wh.create( {
-				siteName: optionallyAddDomain( siteName ),
-				firebase: configuration.firebase,
-				embedly: configuration.embedly,
-				server: configuration.server,
-				generate: configuration.generate,
-				imgix_host: configuration.imgix_host,
-				imgix_secret: configuration.imgix_secret,
-				firebaseName: configuration.firebase,
-				npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-			}, onExit )
-				
-		} )
-
-	program.command( 'delete <siteName>' )
-		.description( 'Delete a site from webhook' )
-		.action( function ( siteName ) {
-
-			var configuration = extendMediaConfigurationWithProgram();
-
-			wh.delete( {
-				siteName: optionallyAddDomain( siteName ),
-				firebaseName: configuration.firebase,
-			}, onExit )
-
-		}, onExit )
-
-	program.command( 'init <siteName>' )
-		.description( 'Initializes a site with configuration files' )
-		.action( function ( siteName ) {
-
-			var configuration = extendMediaConfigurationWithProgram();
-
-			wh.init( {
-				siteName: optionallyAddDomain( siteName ),
-				firebaseName: configuration.firebase,
+      wh.create( {
+        siteName: optionallyAddDomain( siteName ),
+        firebase: configuration.firebase,
         embedly: configuration.embedly,
         server: configuration.server,
         generate: configuration.generate,
         imgix_host: configuration.imgix_host,
         imgix_secret: configuration.imgix_secret,
-				email: configuration.email,
-				npm: configuration.npm,
+        firebaseName: configuration.firebase,
+        npm: configuration.npm,
         node: configuration.node,
         grunt: configuration.grunt,
-			}, onExit )
+      }, onExit )
+        
+    } )
 
-		} )
+  program.command( 'delete <siteName>' )
+    .description( 'Delete a site from webhook' )
+    .action( function ( siteName ) {
+
+      var configuration = extendMediaConfigurationWithProgram();
+
+      wh.delete( {
+        siteName: optionallyAddDomain( siteName ),
+        firebaseName: configuration.firebase,
+      }, onExit )
+
+    }, onExit )
+
+  program.command( 'init <siteName>' )
+    .description( 'Initializes a site with configuration files' )
+    .action( function ( siteName ) {
+
+      var configuration = extendMediaConfigurationWithProgram();
+
+      wh.init( {
+        siteName: optionallyAddDomain( siteName ),
+        firebaseName: configuration.firebase,
+        embedly: configuration.embedly,
+        server: configuration.server,
+        generate: configuration.generate,
+        imgix_host: configuration.imgix_host,
+        imgix_secret: configuration.imgix_secret,
+        email: configuration.email,
+        npm: configuration.npm,
+        node: configuration.node,
+        grunt: configuration.grunt,
+      }, onExit )
+
+    } )
 
   program.command( 'recreate <siteName>' )
     .description( 'Recreates a site using the last version of the site uploaded to the webhook servers.' )
     .action( function ( siteName ) {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       if ( program.firebase ) {
         siteName = siteName.replace(/\./g, ',1');
@@ -225,29 +228,29 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 
     } );
 
-	program.command( 'list-sites' )
-	  .description( 'Lists all the sites that the user is an owner/user on' )
-	  .action( function () {
+  program.command( 'list-sites' )
+    .description( 'Lists all the sites that the user is an owner/user on' )
+    .action( function () {
 
-	  	var configuration = extendMediaConfigurationWithProgram();
-	    
-	    wh.listSites({
-	      firebase: configuration.firebase,
-	      server: configuration.server,
-	      npm: configuration.npm,
-	      node: configuration.node,
-	      grunt: configuration.grunt,
-	      token: configuration.token,
-	      email: configuration.email,
-	    } )
+      var configuration = extendMediaConfigurationWithProgram();
+      
+      wh.listSites({
+        firebase: configuration.firebase,
+        server: configuration.server,
+        npm: configuration.npm,
+        node: configuration.node,
+        grunt: configuration.grunt,
+        token: configuration.token,
+        email: configuration.email,
+      } )
 
-	  } )
+    } )
 
-	program.command('preset-build')
+  program.command('preset-build')
     .description('Generates a .preset-data.json file from a webhook directory')
     .action(function () {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.presetBuild(false, {
         firebase: configuration.firebase,
@@ -266,7 +269,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .description('Generates a .preset-data.json file from a webhook directory which includes data')
     .action(function () {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.presetBuild(true, {
         firebase: configuration.firebase,
@@ -285,7 +288,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .description( 'Generates a backup JSON file at the <toFile> from a webhook directory which includes data' )
     .action( function ( toFile ) {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.presetBuild(true, {
         firebase: configuration.firebase,
@@ -304,7 +307,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .description('Restores database to state captured in backup file, such as one generated from `wh backup`')
     .action(function (fromFile) {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.restore(true, {
         firebase: configuration.firebase,
@@ -323,7 +326,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .description('Updates a webhook site with the latest generate code')
     .action(function () {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.update({
         firebase: configuration.firebase,
@@ -343,7 +346,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .description('Push webhook directory to server')
     .action(function () {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.push({
         firebase: configuration.firebase,
@@ -357,48 +360,48 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     });
 
   program.command('reset-keys')
-  	.description('Resets user passwords and site keys.')
-  	.action(function () {
+    .description('Resets user passwords and site keys.')
+    .action(function () {
 
-  		var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-  		wh.resetKeys({
-  			firebaseName: configuration.firebase,
-  			firebaseToken: configuration.firebaseToken,
-  		})
-  	})
+      wh.resetKeys({
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+      })
+    })
 
   program.command('reset-keys:sites')
-  	.description('Resets site keys.')
-  	.action(function () {
+    .description('Resets site keys.')
+    .action(function () {
 
-  		var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-  		wh.resetKeys({
-  			firebaseName: configuration.firebase,
-  			firebaseToken: configuration.firebaseToken,
-  			resetUserPasswords: false,
-  		})
-  	})
+      wh.resetKeys({
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+        resetUserPasswords: false,
+      })
+    })
 
- 	program.command('reset-keys:users')
-  	.description('Resets site keys.')
-  	.action(function () {
+   program.command('reset-keys:users')
+    .description('Resets site keys.')
+    .action(function () {
 
-  		var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
-  		wh.resetKeys({
-  			firebaseName: configuration.firebase,
-  			firebaseToken: configuration.firebaseToken,
-  			resetSiteKeys: false,
-  		})
-  	})
+      wh.resetKeys({
+        firebaseName: configuration.firebase,
+        firebaseToken: configuration.firebaseToken,
+        resetSiteKeys: false,
+      })
+    })
 
   program.command('serve [port]')
     .description('Serves a webhook site locally')
     .action(function (port) {
 
-    	var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram();
 
       wh.serve({
         port: port || null,
@@ -435,8 +438,8 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
   program.command('echo-options')
     .description('Echos options passed into this command, used for debugging')
     .action(function() {
-    	
-    	var configuration = extendMediaConfigurationWithProgram();
+      
+      var configuration = extendMediaConfigurationWithProgram();
 
       console.log(configuration.firebase);
       console.log(configuration.server);
@@ -451,9 +454,9 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
       console.log(configuration.email);
     });
 
-	program.parse( process.argv )
+  program.parse( process.argv )
 
-	if (!program.args.length) program.help();
+  if (!program.args.length) program.help();
 } )
 
 
@@ -463,31 +466,30 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
  * @return {undefined}
  */
 function getMediaConfiguration ( confPath, callback ) {
-	var fs = require('fs');
+  var fs = require('fs');
 
-	if ( typeof confPath === 'function' ) callback = confPath
-	if ( typeof callback !== 'function' ) callback = function noop () {}
+  if ( typeof confPath === 'function' ) callback = confPath
+  if ( typeof callback !== 'function' ) callback = function noop () {}
 
   function getUserHome() {
     return process.env[
         (process.platform == 'win32')
-        	? 'USERPROFILE'
-        	: 'HOME'
+          ? 'USERPROFILE'
+          : 'HOME'
       ];
   }
 
   var defaultConfPath = getUserHome() + '/.risdmedia/wh.json';
   var configurationPath = typeof confPath === 'string'
-  	? confPath
-  	: defaultConfPath;
+    ? confPath
+    : defaultConfPath;
 
   try {
     var configuration = JSON.parse(
       fs.readFileSync(configurationPath)
         .toString());
-    configuration.http = true;  // default to http until server is available behind TLS
   } catch ( error ) {
-  	error.message = 'Pass in a valid configuration path, or use the default at ' + defaultConfPath;
+    error.message = 'Pass in a valid configuration path, or use the default at ' + defaultConfPath;
     return callback( error )
   }
 
@@ -496,11 +498,11 @@ function getMediaConfiguration ( confPath, callback ) {
   var missing = required.filter( function ( key ) { return configuration.hasOwnProperty( key ) === false } )
 
   if ( missing.length > 0 ) {
-  	var errorMessage = [
-  		'Expected the following configuration values from ' + configurationPath + ':'
-		].concat( missing.map( function ( missingKey ) { return '\t' + missingKey + '\n' } ) );
+    var errorMessage = [
+      'Expected the following configuration values from ' + configurationPath + ':'
+    ].concat( missing.map( function ( missingKey ) { return '\t' + missingKey + '\n' } ) );
 
-  	return callback( new Error( errorMessage ) )
+    return callback( new Error( errorMessage ) )
   }
   
   return callback( null, configuration )
