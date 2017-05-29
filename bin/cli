@@ -329,6 +329,7 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
       var configuration = extendMediaConfigurationWithProgram();
 
       wh.update({
+        generate: configuration.generate,
         firebase: configuration.firebase,
         server: configuration.server,
         embedly: configuration.embedly,
