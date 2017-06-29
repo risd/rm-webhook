@@ -333,6 +333,8 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
         firebase: configuration.firebase,
         server: configuration.server,
         embedly: configuration.embedly,
+        imgix_host: configuration.imgix_host,
+        imgix_secret: configuration.imgix_secret,
         npm: configuration.npm,
         node: configuration.node,
         grunt: configuration.grunt,
