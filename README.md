@@ -33,4 +33,7 @@ rm-wh backup <toFile>
 rm-wh restore <fromFile>
 rm-wh preset-build
 rm-wh preset-build-all
+rm-wh reset-keys
+rm-wh clone-content-under
+rm-wh deploy-static
 ```

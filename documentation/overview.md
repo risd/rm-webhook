@@ -70,6 +70,11 @@ Git branch:   develop
 ---
 ```
 
+After a site has reached the end of its cycle, there may be a desire to archive it. To archive a site, deploy a static copy of the site using the `deploy-static` command.
+
+`rm-wh deploy-static archived-site.risd.edu`
+The command will build the current site, and push the `.build` folder. If a `--buildFolder` flag is passed, the build process is skipped, and the `--buildFolder` passed in is uploaded to the site. If the site name does not include a `.`, then `.risd.systems` is appended to the site name.
+This method of deploying does not continually update as the CMS gets updated.
 
 [node-npm]:https://nodejs.org/en/download/
 [git-flow]:https://github.com/nvie/gitflow

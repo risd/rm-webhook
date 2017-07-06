@@ -54,6 +54,8 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     if ( program.cache ) fromCli.cache = program.cache;
     if ( program.types ) fromCli.types = program.types;
     if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
+    if ( program.gcloud ) fromCli.gcloud = program.gcloud;
+    if ( program.buildFolder ) fromCli.buildFolder = program.buildFolder;
 
     return objectAssign( mediaConfiguration, fromCli )
   }
@@ -80,6 +82,8 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
     .option( '-c, --cache [cacheDir]', 'Sets the directory to use for npm cache' )
     .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
     .option('--skipBuild', 'Skips the site build as a step to ensure templates are okay before deploying.')
+    .option('--gcloud [gcloud]', 'Path to Google Project JSON file.')
+    .option('--buildFolder [buildFolder]', 'Path to local build folder.')
 
 
   program.command( 'deploys' )
@@ -438,6 +442,19 @@ getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) 
 
     });
 
+  program.command('deploy-static <siteName>')
+      .description('Push a static snapshot of the current site, or --buildFolder.')
+      .action(function ( siteName ) {
+
+        var configuration = extendMediaConfigurationWithProgram();
+
+        wh.deployStatic({
+          siteName: optionallyAddDomain( siteName ),
+          gcloud: configuration.gcloud,
+          buildFolder: configuration.buildFolder,
+        }, onExit)
+      })
+
   program.command('echo-options')
     .description('Echos options passed into this command, used for debugging')
     .action(function() {
@@ -496,8 +513,9 @@ function getMediaConfiguration ( confPath, callback ) {
     return callback( error )
   }
 
-  var required = ['embedly', 'firebase', 'server', 'generate',
-                  'imgix_host', 'imgix_secret'];
+  configuration.gcloud = '~/.risdmedia/gcloud.json'
+
+  var required = ['embedly', 'firebase', 'server', 'generate'];
   var missing = required.filter( function ( key ) { return configuration.hasOwnProperty( key ) === false } )
 
   if ( missing.length > 0 ) {
