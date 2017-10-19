@@ -7,524 +7,505 @@ var program = require( 'commander' )
 // var usage = fs.readFileSync(__dirname + '/usage.md').toString();
 var wh = require('wh').lib;
 
-getMediaConfiguration( function withConfiguration ( error, mediaConfiguration ) {
-  if ( error ) return console.log( error );
+var rmwh = require( '../index.js' )
 
-  /**
-   * Expects a site name. If there is a `.` in the name, a domain is assumed
-   * otherwise, `mediaConfiguration.domain` is appened as the domain
-   * 
-   * @param  {string} site The name of the site
-   * @return {string} site The name of the site with 
-   */
-  function optionallyAddDomain ( site ) {
-    if ( typeof site !== 'string' ) return null;
+var mediaConfiguration = requre( '../lib/configuration.js' )
 
-    var optionalDomain = mediaConfiguration.domain;
+function extendMediaConfigurationWithProgram () {
+  // A subset of keys from `program` are configuration, and not all,
+  // so we pull out the ones that we want and store them in `fromCli`
+  var fromCli = {}
+
+  if ( program.firebase ) fromCli.firebaseName = program.firebase;
+  if ( program.token ) fromCli.firebaseToken = program.token;
+  if ( program.server ) fromCli.server = program.server;
+  if ( program.branch ) fromCli.branch = program.branch;
+  if ( program.http ) fromCli.http = program.http;
+  if ( program.embedly ) fromCli.embedly = program.embedly;
+  if ( program.generate ) fromCli.generate = program.generate;
+  if ( program.imgix_host ) fromCli.imgix_host = program.imgix_host;
+  if ( program.imgix_secret ) fromCli.imgix_secret = program.imgix_secret;
+  if ( program.npm ) fromCli.npm = program.npm;
+  if ( program.node ) fromCli.node = program.node;
+  if ( program.grunt ) fromCli.grunt = program.grunt;
+  if ( program.email ) fromCli.email = program.email;
+  if ( program.cache ) fromCli.cache = program.cache;
+  if ( program.types ) fromCli.types = program.types;
+  if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
+  if ( program.gcloud ) fromCli.gcloud = program.gcloud;
+  if ( program.buildFolder ) fromCli.buildFolder = program.buildFolder;
+
+  return objectAssign( mediaConfiguration, fromCli )
+}
+
+function onExit ( error ) {
+  if ( error ) console.log( error.message );
+  process.exit();
+}
+
+program
+  .option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
+  .option( '-t, --token [authToken]', 'Use this auth token for firebase instead of prompting for login' )
+  .option( '-s, --server [uploadserver]', 'Use this server when uploading files, for self hosting mode' )
+  .option( '--branch [branch]', 'Use this git branch instead of the current branch' )
+  .option( '--http', 'Use http instead of default https as the server protocol' )
+  .option( '-m, --embedly [embedly]', 'Use this embedly key when writing .firebase.conf, for self hosting mode' )
+  .option( '-b, --generate [generate]', 'Use this generator URL when creating a new site, for self hosting mode' )
+  .option( '-h, --imgix_host [imgixhost]', 'Use this URL for imgix CDN serving, for self hosting mode' )
+  .option( '-x, --imgix_secret [imgixsecret]', 'Use this secret to sign imgix URLs, for self hosting mode' )
+  .option( '-n, --npm [npmPath]', 'Use this npm executable over the default one (npm)' )
+  .option( '-o, --node [nodePath]', 'Use this node executable over the default one (node)' )
+  .option( '-g, --grunt [gruntPath]', 'Use this grunt executable over the default one (grunt)' )
+  .option( '-e, --email [email]', 'The e-mail address to use when using the --token option' )
+  .option( '-c, --cache [cacheDir]', 'Sets the directory to use for npm cache' )
+  .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
+  .option('--skipBuild', 'Skips the site build as a step to ensure templates are okay before deploying.')
+  .option('--gcloud [gcloud]', 'Path to Google Project JSON file.')
+  .option('--buildFolder [buildFolder]', 'Path to local build folder.')
+
+
+program.command( 'deploys' )
+  .description( 'List all deploy configuration for the current webhook site' )
+  .action( function () {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.deploys( configuration, onExit )
+
+    // wh.deploys( {
+    //   firebaseName: configuration.firebaseName,
+    //   firebaseToken: configuration.firebaseToken,
+    // }, onExit )
+
+  } )
+
+program.command( 'deploys:set <bucketName>' )
+  .description( 'Set a bucket as the deploy destination. Use the --branch flag to override setting the deploy to use the current branch\'s set of templates.' )
+  .action( function ( bucketName ) {
+    if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.deploys( Object.assign( configuration, { bucketSet: bucketName } ), onExit )
+
+    // wh.deploys( {
+    //   firebaseName: configuration.firebaseName,
+    //   firebaseToken: configuration.firebaseToken,
+    //   branch: configuration.branch,
+    //   bucketSet: bucketName,
+    // }, onExit )
+
+  } )
+
+program.command( 'deploys:remove <bucketName>' )
+  .description( 'Remove a bucket as a deploy destination.' )
+  .action( function ( bucketName ) {
+    if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.deploys( Object.assign( configuration, { bucketRemove: bucketName } ), onExit )
+
+    // wh.deploys( {
+    //   firebaseName: configuration.firebaseName,
+    //   firebaseToken: configuration.firebaseToken,
+    //   branch: configuration.branch,
+    //   bucketRemove: bucketName,
+    // }, onExit )
+
+  } )
+
+program.command( 'deploy' )
+  .description( 'Push a webhook directory to server' )
+  .action( function () {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.push( configuration, onExit )
+
+    // wh.push( {
+    //   server: configuration.server,
+    //   firebaseToken: configuration.firebaseToken,
+    //   http: configuration.http,
+    //   branch: configuration.branch,
+    //   skipBuild: configuration.skipBuild,
+    // }, onExit )
+
+  } )
+
+program.command( 'create <siteName>' )
+  .description( 'Create a new webhook site.' )
+  .action( function ( siteName ) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.create( Object.assign( configuration, { siteName: siteName } ), onExit )
+
+    // wh.create( {
+    //   siteName: optionallyAddDomain( siteName ),
+    //   embedly: configuration.embedly,
+    //   server: configuration.server,
+    //   generate: configuration.generate,
+    //   imgix_host: configuration.imgix_host,
+    //   imgix_secret: configuration.imgix_secret,
+    //   firebaseName: configuration.firebase,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    // }, onExit )
+      
+  } )
+
+program.command( 'delete <siteName>' )
+  .description( 'Delete a site from webhook' )
+  .action( function ( siteName ) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.delete( Object.assign( configuration, { siteName: siteName } ), onExit )
+
+    // wh.delete( {
+    //   siteName: optionallyAddDomain( siteName ),
+    //   firebaseName: configuration.firebase,
+    // }, onExit )
+
+  }, onExit )
+
+program.command( 'init <siteName>' )
+  .description( 'Initializes a site with configuration files' )
+  .action( function ( siteName ) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.delete( Object.assign( configuration, { siteName: siteName } ), onExit )
+
+    // wh.init( {
+    //   siteName: optionallyAddDomain( siteName ),
+    //   firebaseName: configuration.firebase,
+    //   embedly: configuration.embedly,
+    //   server: configuration.server,
+    //   generate: configuration.generate,
+    //   imgix_host: configuration.imgix_host,
+    //   imgix_secret: configuration.imgix_secret,
+    //   email: configuration.email,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    // }, onExit )
+
+  } )
+
+program.command( 'recreate <siteName>' )
+  .description( 'Recreates a site using the last version of the site uploaded to the webhook servers.' )
+  .action( function ( siteName ) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.recreate( Object.assign( configuration, { siteName: siteName } ), onExit )
     
-    var containsTLD = function () {
-      var indexOfPeriod = site.indexOf( '.' );
-      return indexOfPeriod === -1 ? false : true;
+    // wh.recreate( {
+    //   siteName: optionallyAddDomain( siteName ),
+    //   firebaseName: configuration.firebase,
+    //   server: configuration.server,
+    //   embedly: configuration.embedly,
+    //   generate: configuration.generate,
+    //   imgix_host: configuration.imgix_host,
+    //   imgix_secret: configuration.imgix_secret,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   cache: configuration.cache
+    // } );
+
+  } );
+
+program.command( 'list-sites' )
+  .description( 'Lists all the sites that the user is an owner/user on' )
+  .action( function () {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.listSites( configuration, onExit )
+    
+    // wh.listSites({
+    //   firebaseName: configuration.firebaseName,
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    // } )
+
+  } )
+
+program.command('preset-build')
+  .description('Generates a .preset-data.json file from a webhook directory')
+  .action(function () {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.presetBuild( Object.assign( configuration, { all: false } ), onExit )
+
+    // wh.presetBuild(false, {
+    //   firebase: configuration.firebase,
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   toFile: null  // use the default
+    // } )
+
+  } )
+
+program.command('preset-build-all')
+  .description('Generates a .preset-data.json file from a webhook directory which includes data')
+  .action(function () {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.presetBuild( Object.assign( configuration, { all: true } ), onExit )
+
+    // wh.presetBuild({
+    //   firebaseName: configuration.firebaseName,
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   toFile: null,  // use the default
+    //   all: true,
+    // } )
+
+  } )
+
+program.command( 'backup <toFile>' )
+  .description( 'Generates a backup JSON file at the <toFile> from a webhook directory which includes data' )
+  .action( function ( toFile ) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    var backupOptions = {
+      all: true,
+      toFile: toFile
     }
 
-    var siteHasTLD = containsTLD( site );
-    if ( siteHasTLD === true ) return site;
-    else return [ site, optionalDomain ].join( '.' );
+    rmwh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
 
-  }
+    // wh.presetBuild(true, {
+    //   firebaseName: configuration.firebaseName,
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   toFile: toFile
+    // } )
 
-  function extendMediaConfigurationWithProgram () {
-    // A subset of keys from `program` are configuration, and not all,
-    // so we pull out the ones that we want and store them in `fromCli`
-    var fromCli = {}
+  } )
 
-    if ( program.firebase ) fromCli.firebase = program.firebase;
-    if ( program.token ) fromCli.firebaseToken = program.token;
-    if ( program.server ) fromCli.server = program.server;
-    if ( program.branch ) fromCli.branch = program.branch;
-    if ( program.http ) fromCli.http = program.http;
-    if ( program.embedly ) fromCli.embedly = program.embedly;
-    if ( program.generate ) fromCli.generate = program.generate;
-    if ( program.imgix_host ) fromCli.imgix_host = program.imgix_host;
-    if ( program.imgix_secret ) fromCli.imgix_secret = program.imgix_secret;
-    if ( program.npm ) fromCli.npm = program.npm;
-    if ( program.node ) fromCli.node = program.node;
-    if ( program.grunt ) fromCli.grunt = program.grunt;
-    if ( program.email ) fromCli.email = program.email;
-    if ( program.cache ) fromCli.cache = program.cache;
-    if ( program.types ) fromCli.types = program.types;
-    if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
-    if ( program.gcloud ) fromCli.gcloud = program.gcloud;
-    if ( program.buildFolder ) fromCli.buildFolder = program.buildFolder;
+program.command( 'restore <fromFile>' )
+  .description('Restores database to state captured in backup file, such as one generated from `wh backup`')
+  .action(function (fromFile) {
 
-    return objectAssign( mediaConfiguration, fromCli )
-  }
+    var configuration = extendMediaConfigurationWithProgram();
 
-  function onExit ( error ) {
-    if ( error ) console.log( error.message );
-    process.exit();
-  }
+    var restoreOptions = {
+      all: true,
+      fromFile: fromFile
+    }
 
-  program
-    .option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
-    .option( '-t, --token [authToken]', 'Use this auth token for firebase instead of prompting for login' )
-    .option( '-s, --server [uploadserver]', 'Use this server when uploading files, for self hosting mode' )
-    .option( '--branch [branch]', 'Use this git branch instead of the current branch' )
-    .option( '--http', 'Use http instead of default https as the server protocol' )
-    .option( '-m, --embedly [embedly]', 'Use this embedly key when writing .firebase.conf, for self hosting mode' )
-    .option( '-b, --generate [generate]', 'Use this generator URL when creating a new site, for self hosting mode' )
-    .option( '-h, --imgix_host [imgixhost]', 'Use this URL for imgix CDN serving, for self hosting mode' )
-    .option( '-x, --imgix_secret [imgixsecret]', 'Use this secret to sign imgix URLs, for self hosting mode' )
-    .option( '-n, --npm [npmPath]', 'Use this npm executable over the default one (npm)' )
-    .option( '-o, --node [nodePath]', 'Use this node executable over the default one (node)' )
-    .option( '-g, --grunt [gruntPath]', 'Use this grunt executable over the default one (grunt)' )
-    .option( '-e, --email [email]', 'The e-mail address to use when using the --token option' )
-    .option( '-c, --cache [cacheDir]', 'Sets the directory to use for npm cache' )
-    .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
-    .option('--skipBuild', 'Skips the site build as a step to ensure templates are okay before deploying.')
-    .option('--gcloud [gcloud]', 'Path to Google Project JSON file.')
-    .option('--buildFolder [buildFolder]', 'Path to local build folder.')
+    rmwh.restore( Object.assign( configuration, restoreOptions ), onExit )
 
+    // wh.restore(true, {
+    //   firebaseName: configuration.firebaseName,
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   fromFile: fromFile
+    // } )
 
-  program.command( 'deploys' )
-    .description( 'List all deploy configuration for the current webhook site' )
-    .action( function () {
+  } )
 
-      var configuration = extendMediaConfigurationWithProgram();
+program.command('update')
+  .description('Updates a webhook site with the latest generate code')
+  .action(function () {
 
-      wh.deploys( {
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-      }, onExit )
+    var configuration = extendMediaConfigurationWithProgram();
 
-    } )
+    rmwh.update( configuration, onExit )
 
-  program.command( 'deploys:set <bucketName>' )
-    .description( 'Set a bucket as the deploy destination. Use the --branch flag to override setting the deploy to use the current branch\'s set of templates.' )
-    .action( function ( bucketName ) {
-      if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
+    // wh.update({
+    //   generate: configuration.generate,
+    //   firebaseName: configuration.firebaseName,
+    //   server: configuration.server,
+    //   embedly: configuration.embedly,
+    //   imgix_host: configuration.imgix_host,
+    //   imgix_secret: configuration.imgix_secret,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   force: configuration.force,
+    //   cache: configuration.cache
+    // });
 
-      var configuration = extendMediaConfigurationWithProgram();
+  });
 
-      wh.deploys( {
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-        branch: configuration.branch,
-        bucketSet: bucketName,
-      }, onExit )
+program.command('push')
+  .description('Push webhook directory to server')
+  .action(function () {
 
-    } )
+    var configuration = extendMediaConfigurationWithProgram();
 
-  program.command( 'deploys:remove <bucketName>' )
-    .description( 'Remove a bucket as a deploy destination.' )
-    .action( function ( bucketName ) {
-      if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
+    rmwh.push( configuration, onExit )
 
-      var configuration = extendMediaConfigurationWithProgram();
+    // wh.push({
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email
+    // });
+  });
 
-      wh.deploys( {
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-        branch: configuration.branch,
-        bucketRemove: bucketName,
-      }, onExit )
+program.command('reset-keys')
+  .description('Resets user passwords and site keys.')
+  .action(function () {
 
-    } )
+    var configuration = extendMediaConfigurationWithProgram();
 
-  program.command( 'deploy' )
-    .description( 'Push a webhook directory to server' )
-    .action( function () {
+    rmwh.resetKeys( configuration, onExit )
 
-      var configuration = extendMediaConfigurationWithProgram();
+    // wh.resetKeys({
+    //   firebaseName: configuration.firebaseName,
+    //   firebaseToken: configuration.firebaseToken,
+    // })
+  })
 
-      wh.push( {
-        server: configuration.server,
-        firebaseToken: configuration.firebaseToken,
-        http: configuration.http,
-        branch: configuration.branch,
-        skipBuild: configuration.skipBuild,
-      }, onExit )
+program.command('reset-keys:sites')
+  .description('Resets site keys.')
+  .action(function () {
 
-    } )
+    var configuration = extendMediaConfigurationWithProgram();
 
-  program.command( 'create <siteName>' )
-    .description( 'Create a new webhook site.' )
-    .action( function ( siteName ) {
+    rmwh.resetKeys( Object.assign( configuration, { resetUserPasswords: false } ), onExit )
 
-      var configuration = extendMediaConfigurationWithProgram();
+    // wh.resetKeys({
+    //   firebaseName: configuration.firebase,
+    //   firebaseToken: configuration.firebaseToken,
+    //   resetUserPasswords: false,
+    // })
+  })
 
-      wh.create( {
-        siteName: optionallyAddDomain( siteName ),
-        firebase: configuration.firebase,
-        embedly: configuration.embedly,
-        server: configuration.server,
-        generate: configuration.generate,
-        imgix_host: configuration.imgix_host,
-        imgix_secret: configuration.imgix_secret,
-        firebaseName: configuration.firebase,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-      }, onExit )
-        
-    } )
+ program.command('reset-keys:users')
+  .description('Resets site keys.')
+  .action(function () {
 
-  program.command( 'delete <siteName>' )
-    .description( 'Delete a site from webhook' )
-    .action( function ( siteName ) {
+    var configuration = extendMediaConfigurationWithProgram();
 
-      var configuration = extendMediaConfigurationWithProgram();
+    rmwh.resetKeys( Object.assign( configuration, { resetSiteKeys: false } ), onExit )
 
-      wh.delete( {
-        siteName: optionallyAddDomain( siteName ),
-        firebaseName: configuration.firebase,
-      }, onExit )
+    // wh.resetKeys({
+    //   firebaseName: configuration.firebase,
+    //   firebaseToken: configuration.firebaseToken,
+    //   resetSiteKeys: false,
+    // })
+  })
 
-    }, onExit )
+program.command('serve [port]')
+  .description('Serves a webhook site locally')
+  .action(function (port) {
 
-  program.command( 'init <siteName>' )
-    .description( 'Initializes a site with configuration files' )
-    .action( function ( siteName ) {
+    var configuration = extendMediaConfigurationWithProgram();
 
-      var configuration = extendMediaConfigurationWithProgram();
+    rmwh.serve( Object.assign( configuration, { port: port } ), onExit )
 
-      wh.init( {
-        siteName: optionallyAddDomain( siteName ),
-        firebaseName: configuration.firebase,
-        embedly: configuration.embedly,
-        server: configuration.server,
-        generate: configuration.generate,
-        imgix_host: configuration.imgix_host,
-        imgix_secret: configuration.imgix_secret,
-        email: configuration.email,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-      }, onExit )
+    // wh.serve({
+    //   port: port || null,
+    //   server: configuration.server,
+    //   npm: configuration.npm,
+    //   node: configuration.node,
+    //   grunt: configuration.grunt,
+    //   token: configuration.token,
+    //   email: configuration.email,
+    //   cache: configuration.cache
+    // });
+  });
 
-    } )
+program.command('clone-content-under <namespace>')
+  .description('Clones content type and current data under a new namespace.')
+  .action(function (namespace) {
+    
+    var contentTypes = ((typeof program.types === 'string')
+      ? program.types.split(',')
+      : [] )
 
-  program.command( 'recreate <siteName>' )
-    .description( 'Recreates a site using the last version of the site uploaded to the webhook servers.' )
-    .action( function ( siteName ) {
+    var cloneOptions = {
+      namespace: namespace,
+      contentTypes: contentTypes
+    }
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.cloneContentUnder( Object.assign( configuration, cloneOptions ), onExit )
+
+    // wh.cloneContentUnder({
+    //   firebaseName: configuration.firebase,
+    //   firebaseToken: configuration.firebaseToken,
+    //   namespace: namespace,
+    //   contentTypes: contentTypes,
+    // }, onExit);
+
+  });
+
+program.command('deploy-static <siteName>')
+    .description('Push a static snapshot of the current site, or --buildFolder.')
+    .action(function ( siteName ) {
 
       var configuration = extendMediaConfigurationWithProgram();
 
-      if ( program.firebase ) {
-        siteName = siteName.replace(/\./g, ',1');
-      }
-      
-      wh.recreate( {
-        siteName: optionallyAddDomain( siteName ),
-        firebase: configuration.firebase,
-        server: configuration.server,
-        embedly: configuration.embedly,
-        generate: configuration.generate,
-        imgix_host: configuration.imgix_host,
-        imgix_secret: configuration.imgix_secret,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        cache: configuration.cache
-      } );
+      rmwh.deployStatic( Object.assign( configuration, { siteName: siteName } ), onExit )
 
-    } );
-
-  program.command( 'list-sites' )
-    .description( 'Lists all the sites that the user is an owner/user on' )
-    .action( function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-      
-      wh.listSites({
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-      } )
-
-    } )
-
-  program.command('preset-build')
-    .description('Generates a .preset-data.json file from a webhook directory')
-    .action(function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.presetBuild(false, {
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        toFile: null  // use the default
-      } )
-
-    } )
-
-  program.command('preset-build-all')
-    .description('Generates a .preset-data.json file from a webhook directory which includes data')
-    .action(function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.presetBuild(true, {
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        toFile: null  // use the default
-      } )
-
-    } )
-
-  program.command( 'backup <toFile>' )
-    .description( 'Generates a backup JSON file at the <toFile> from a webhook directory which includes data' )
-    .action( function ( toFile ) {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.presetBuild(true, {
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        toFile: toFile
-      } )
-
-    } )
-
-  program.command( 'restore <fromFile>' )
-    .description('Restores database to state captured in backup file, such as one generated from `wh backup`')
-    .action(function (fromFile) {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.restore(true, {
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        fromFile: fromFile
-      } )
-
-    } )
-
-  program.command('update')
-    .description('Updates a webhook site with the latest generate code')
-    .action(function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.update({
-        generate: configuration.generate,
-        firebase: configuration.firebase,
-        server: configuration.server,
-        embedly: configuration.embedly,
-        imgix_host: configuration.imgix_host,
-        imgix_secret: configuration.imgix_secret,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        force: configuration.force,
-        cache: configuration.cache
-      });
-    });
-
-  program.command('push')
-    .description('Push webhook directory to server')
-    .action(function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.push({
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email
-      });
-    });
-
-  program.command('reset-keys')
-    .description('Resets user passwords and site keys.')
-    .action(function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.resetKeys({
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-      })
+      // wh.deployStatic({
+      //   siteName: optionallyAddDomain( siteName ),
+      //   gcloud: configuration.gcloud,
+      //   buildFolder: configuration.buildFolder,
+      // }, onExit)
     })
 
-  program.command('reset-keys:sites')
-    .description('Resets site keys.')
-    .action(function () {
+program.command('echo-options')
+  .description('Echos options passed into this command, used for debugging')
+  .action(function() {
+    
+    var configuration = extendMediaConfigurationWithProgram();
 
-      var configuration = extendMediaConfigurationWithProgram();
+    console.log(configuration.firebaseName);
+    console.log(configuration.server);
+    console.log(configuration.embedly);
+    console.log(configuration.generate);
+    console.log(configuration.imgix_host);
+    console.log(configuration.imgix_secret);
+    console.log(configuration.npm);
+    console.log(configuration.node);
+    console.log(configuration.grunt);
+    console.log(configuration.token);
+    console.log(configuration.email);
+  });
 
-      wh.resetKeys({
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-        resetUserPasswords: false,
-      })
-    })
+program.parse( process.argv )
 
-   program.command('reset-keys:users')
-    .description('Resets site keys.')
-    .action(function () {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.resetKeys({
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-        resetSiteKeys: false,
-      })
-    })
-
-  program.command('serve [port]')
-    .description('Serves a webhook site locally')
-    .action(function (port) {
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.serve({
-        port: port || null,
-        firebase: configuration.firebase,
-        server: configuration.server,
-        npm: configuration.npm,
-        node: configuration.node,
-        grunt: configuration.grunt,
-        token: configuration.token,
-        email: configuration.email,
-        cache: configuration.cache
-      });
-    });
-
-  program.command('clone-content-under <namespace>')
-    .description('Clones content type and current data under a new namespace.')
-    .action(function (namespace) {
-      
-      var contentTypes = ((typeof program.types === 'string')
-        ? program.types.split(',')
-        : [] )
-
-      var configuration = extendMediaConfigurationWithProgram();
-
-      wh.cloneContentUnder({
-        firebaseName: configuration.firebase,
-        firebaseToken: configuration.firebaseToken,
-        namespace: namespace,
-        contentTypes: contentTypes,
-      }, onExit);
-
-    });
-
-  program.command('deploy-static <siteName>')
-      .description('Push a static snapshot of the current site, or --buildFolder.')
-      .action(function ( siteName ) {
-
-        var configuration = extendMediaConfigurationWithProgram();
-
-        wh.deployStatic({
-          siteName: optionallyAddDomain( siteName ),
-          gcloud: configuration.gcloud,
-          buildFolder: configuration.buildFolder,
-        }, onExit)
-      })
-
-  program.command('echo-options')
-    .description('Echos options passed into this command, used for debugging')
-    .action(function() {
-      
-      var configuration = extendMediaConfigurationWithProgram();
-
-      console.log(configuration.firebase);
-      console.log(configuration.server);
-      console.log(configuration.embedly);
-      console.log(configuration.generate);
-      console.log(configuration.imgix_host);
-      console.log(configuration.imgix_secret);
-      console.log(configuration.npm);
-      console.log(configuration.node);
-      console.log(configuration.grunt);
-      console.log(configuration.token);
-      console.log(configuration.email);
-    });
-
-  program.parse( process.argv )
-
-  if (!program.args.length) program.help();
-} )
+if (!program.args.length) program.help();
 
 
-/**
- * @param  {string?}   confPath The path to find configuration
- * @param  {Function}  callback Continuation with signature ( error, configuration )
- * @return {undefined}
- */
-function getMediaConfiguration ( confPath, callback ) {
-  var fs = require('fs');
-
-  if ( typeof confPath === 'function' ) callback = confPath
-  if ( typeof callback !== 'function' ) callback = function noop () {}
-
-  function getUserHome() {
-    return process.env[
-        (process.platform == 'win32')
-          ? 'USERPROFILE'
-          : 'HOME'
-      ];
-  }
-
-  var defaultConfPath = getUserHome() + '/.risdmedia/wh.json';
-  var configurationPath = typeof confPath === 'string'
-    ? confPath
-    : defaultConfPath;
-
-  try {
-    var configuration = JSON.parse(
-      fs.readFileSync(configurationPath)
-        .toString());
-  } catch ( error ) {
-    error.message = 'Pass in a valid configuration path, or use the default at ' + defaultConfPath;
-    return callback( error )
-  }
-
-  configuration.gcloud = '~/.risdmedia/gcloud.json'
-
-  var required = ['embedly', 'firebase', 'server', 'generate'];
-  var missing = required.filter( function ( key ) { return configuration.hasOwnProperty( key ) === false } )
-
-  if ( missing.length > 0 ) {
-    var errorMessage = [
-      'Expected the following configuration values from ' + configurationPath + ':'
-    ].concat( missing.map( function ( missingKey ) { return '\t' + missingKey + '\n' } ) );
-
-    return callback( new Error( errorMessage ) )
-  }
-  
-  return callback( null, configuration )
-}
