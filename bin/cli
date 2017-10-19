@@ -9,7 +9,7 @@ var wh = require('wh').lib;
 
 var rmwh = require( '../index.js' )
 
-var mediaConfiguration = requre( '../lib/configuration.js' )
+var mediaConfiguration = require( '../lib/configuration.js' )
 
 function extendMediaConfigurationWithProgram () {
   // A subset of keys from `program` are configuration, and not all,
