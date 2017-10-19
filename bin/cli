@@ -9,7 +9,7 @@ var wh = require('wh').lib;
 
 var rmwh = require( '../index.js' )
 
-var mediaConfiguration = require( '../lib/configuration.js' )
+var mediaConfiguration = require( '../lib/configuration.js' )()
 
 function extendMediaConfigurationWithProgram () {
   // A subset of keys from `program` are configuration, and not all,
@@ -177,7 +177,7 @@ program.command( 'init <siteName>' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.delete( Object.assign( configuration, { siteName: siteName } ), onExit )
+    rmwh.init( Object.assign( configuration, { siteName: siteName } ), onExit )
 
     // wh.init( {
     //   siteName: optionallyAddDomain( siteName ),
