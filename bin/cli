@@ -72,11 +72,6 @@ program.command( 'deploys' )
 
     rmwh.deploys( configuration, onExit )
 
-    // wh.deploys( {
-    //   firebaseName: configuration.firebaseName,
-    //   firebaseToken: configuration.firebaseToken,
-    // }, onExit )
-
   } )
 
 program.command( 'deploys:set <bucketName>' )
@@ -87,13 +82,6 @@ program.command( 'deploys:set <bucketName>' )
     var configuration = extendMediaConfigurationWithProgram();
 
     rmwh.deploys( Object.assign( configuration, { bucketSet: bucketName } ), onExit )
-
-    // wh.deploys( {
-    //   firebaseName: configuration.firebaseName,
-    //   firebaseToken: configuration.firebaseToken,
-    //   branch: configuration.branch,
-    //   bucketSet: bucketName,
-    // }, onExit )
 
   } )
 
@@ -106,13 +94,6 @@ program.command( 'deploys:remove <bucketName>' )
 
     rmwh.deploys( Object.assign( configuration, { bucketRemove: bucketName } ), onExit )
 
-    // wh.deploys( {
-    //   firebaseName: configuration.firebaseName,
-    //   firebaseToken: configuration.firebaseToken,
-    //   branch: configuration.branch,
-    //   bucketRemove: bucketName,
-    // }, onExit )
-
   } )
 
 program.command( 'deploy' )
@@ -122,14 +103,6 @@ program.command( 'deploy' )
     var configuration = extendMediaConfigurationWithProgram();
 
     rmwh.push( configuration, onExit )
-
-    // wh.push( {
-    //   server: configuration.server,
-    //   firebaseToken: configuration.firebaseToken,
-    //   http: configuration.http,
-    //   branch: configuration.branch,
-    //   skipBuild: configuration.skipBuild,
-    // }, onExit )
 
   } )
 
@@ -141,19 +114,6 @@ program.command( 'create <siteName>' )
 
     rmwh.create( Object.assign( configuration, { siteName: siteName } ), onExit )
 
-    // wh.create( {
-    //   siteName: optionallyAddDomain( siteName ),
-    //   embedly: configuration.embedly,
-    //   server: configuration.server,
-    //   generate: configuration.generate,
-    //   imgix_host: configuration.imgix_host,
-    //   imgix_secret: configuration.imgix_secret,
-    //   firebaseName: configuration.firebase,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    // }, onExit )
-      
   } )
 
 program.command( 'delete <siteName>' )
@@ -163,11 +123,6 @@ program.command( 'delete <siteName>' )
     var configuration = extendMediaConfigurationWithProgram();
 
     rmwh.delete( Object.assign( configuration, { siteName: siteName } ), onExit )
-
-    // wh.delete( {
-    //   siteName: optionallyAddDomain( siteName ),
-    //   firebaseName: configuration.firebase,
-    // }, onExit )
 
   }, onExit )
 
@@ -179,20 +134,6 @@ program.command( 'init <siteName>' )
 
     rmwh.init( Object.assign( configuration, { siteName: siteName } ), onExit )
 
-    // wh.init( {
-    //   siteName: optionallyAddDomain( siteName ),
-    //   firebaseName: configuration.firebase,
-    //   embedly: configuration.embedly,
-    //   server: configuration.server,
-    //   generate: configuration.generate,
-    //   imgix_host: configuration.imgix_host,
-    //   imgix_secret: configuration.imgix_secret,
-    //   email: configuration.email,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    // }, onExit )
-
   } )
 
 program.command( 'recreate <siteName>' )
@@ -203,22 +144,6 @@ program.command( 'recreate <siteName>' )
 
     rmwh.recreate( Object.assign( configuration, { siteName: siteName } ), onExit )
     
-    // wh.recreate( {
-    //   siteName: optionallyAddDomain( siteName ),
-    //   firebaseName: configuration.firebase,
-    //   server: configuration.server,
-    //   embedly: configuration.embedly,
-    //   generate: configuration.generate,
-    //   imgix_host: configuration.imgix_host,
-    //   imgix_secret: configuration.imgix_secret,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   cache: configuration.cache
-    // } );
-
   } );
 
 program.command( 'list-sites' )
@@ -229,16 +154,6 @@ program.command( 'list-sites' )
 
     rmwh.listSites( configuration, onExit )
     
-    // wh.listSites({
-    //   firebaseName: configuration.firebaseName,
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    // } )
-
   } )
 
 program.command('preset-build')
@@ -249,17 +164,6 @@ program.command('preset-build')
 
     rmwh.presetBuild( Object.assign( configuration, { all: false } ), onExit )
 
-    // wh.presetBuild(false, {
-    //   firebase: configuration.firebase,
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   toFile: null  // use the default
-    // } )
-
   } )
 
 program.command('preset-build-all')
@@ -269,18 +173,6 @@ program.command('preset-build-all')
     var configuration = extendMediaConfigurationWithProgram();
 
     rmwh.presetBuild( Object.assign( configuration, { all: true } ), onExit )
-
-    // wh.presetBuild({
-    //   firebaseName: configuration.firebaseName,
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   toFile: null,  // use the default
-    //   all: true,
-    // } )
 
   } )
 
@@ -297,17 +189,6 @@ program.command( 'backup <toFile>' )
 
     rmwh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
 
-    // wh.presetBuild(true, {
-    //   firebaseName: configuration.firebaseName,
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   toFile: toFile
-    // } )
-
   } )
 
 program.command( 'restore <fromFile>' )
@@ -323,17 +204,6 @@ program.command( 'restore <fromFile>' )
 
     rmwh.restore( Object.assign( configuration, restoreOptions ), onExit )
 
-    // wh.restore(true, {
-    //   firebaseName: configuration.firebaseName,
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   fromFile: fromFile
-    // } )
-
   } )
 
 program.command('update')
@@ -343,22 +213,6 @@ program.command('update')
     var configuration = extendMediaConfigurationWithProgram();
 
     rmwh.update( configuration, onExit )
-
-    // wh.update({
-    //   generate: configuration.generate,
-    //   firebaseName: configuration.firebaseName,
-    //   server: configuration.server,
-    //   embedly: configuration.embedly,
-    //   imgix_host: configuration.imgix_host,
-    //   imgix_secret: configuration.imgix_secret,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   force: configuration.force,
-    //   cache: configuration.cache
-    // });
 
   });
 
@@ -370,14 +224,6 @@ program.command('push')
 
     rmwh.push( configuration, onExit )
 
-    // wh.push({
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email
-    // });
   });
 
 program.command('reset-keys')
@@ -388,10 +234,6 @@ program.command('reset-keys')
 
     rmwh.resetKeys( configuration, onExit )
 
-    // wh.resetKeys({
-    //   firebaseName: configuration.firebaseName,
-    //   firebaseToken: configuration.firebaseToken,
-    // })
   })
 
 program.command('reset-keys:sites')
@@ -402,11 +244,6 @@ program.command('reset-keys:sites')
 
     rmwh.resetKeys( Object.assign( configuration, { resetUserPasswords: false } ), onExit )
 
-    // wh.resetKeys({
-    //   firebaseName: configuration.firebase,
-    //   firebaseToken: configuration.firebaseToken,
-    //   resetUserPasswords: false,
-    // })
   })
 
  program.command('reset-keys:users')
@@ -417,11 +254,6 @@ program.command('reset-keys:sites')
 
     rmwh.resetKeys( Object.assign( configuration, { resetSiteKeys: false } ), onExit )
 
-    // wh.resetKeys({
-    //   firebaseName: configuration.firebase,
-    //   firebaseToken: configuration.firebaseToken,
-    //   resetSiteKeys: false,
-    // })
   })
 
 program.command('serve [port]')
@@ -432,16 +264,6 @@ program.command('serve [port]')
 
     rmwh.serve( Object.assign( configuration, { port: port } ), onExit )
 
-    // wh.serve({
-    //   port: port || null,
-    //   server: configuration.server,
-    //   npm: configuration.npm,
-    //   node: configuration.node,
-    //   grunt: configuration.grunt,
-    //   token: configuration.token,
-    //   email: configuration.email,
-    //   cache: configuration.cache
-    // });
   });
 
 program.command('clone-content-under <namespace>')
@@ -461,13 +283,6 @@ program.command('clone-content-under <namespace>')
 
     rmwh.cloneContentUnder( Object.assign( configuration, cloneOptions ), onExit )
 
-    // wh.cloneContentUnder({
-    //   firebaseName: configuration.firebase,
-    //   firebaseToken: configuration.firebaseToken,
-    //   namespace: namespace,
-    //   contentTypes: contentTypes,
-    // }, onExit);
-
   });
 
 program.command('deploy-static <siteName>')
@@ -478,11 +293,6 @@ program.command('deploy-static <siteName>')
 
       rmwh.deployStatic( Object.assign( configuration, { siteName: siteName } ), onExit )
 
-      // wh.deployStatic({
-      //   siteName: optionallyAddDomain( siteName ),
-      //   gcloud: configuration.gcloud,
-      //   buildFolder: configuration.buildFolder,
-      // }, onExit)
     })
 
 program.command('echo-options')
