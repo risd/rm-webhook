@@ -19,6 +19,6 @@
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "object-assign": "^4.1.1",
-    "wh": "risd/webhook#1.0.63"
+    "wh": "risd/webhook#1.0.64"
   }
 }
