@@ -303,17 +303,8 @@ program.command('echo-options')
     
     var configuration = extendMediaConfigurationWithProgram();
 
-    console.log(configuration.firebaseName);
-    console.log(configuration.server);
-    console.log(configuration.embedly);
-    console.log(configuration.generate);
-    console.log(configuration.imgix_host);
-    console.log(configuration.imgix_secret);
-    console.log(configuration.npm);
-    console.log(configuration.node);
-    console.log(configuration.grunt);
-    console.log(configuration.token);
-    console.log(configuration.email);
+    console.log( JSON.stringify( configuration, null, 2 ) )
+
   });
 
 program.parse( process.argv )

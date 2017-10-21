@@ -3,6 +3,7 @@ var wh = require( './lib/wh' );
 var configuration = require( './lib/configuration.js' )()
 
 module.exports = {
+  configuration: configuration,
   deploys: configurer( wh.deploys ),
   push: configurer( wh.push ),
   create: configurer( wh.create ),
