@@ -33,7 +33,8 @@ function extendMediaConfigurationWithProgram () {
   if ( program.types ) fromCli.types = program.types;
   if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
   if ( program.gcloud ) fromCli.gcloud = program.gcloud;
-  if ( program.buildFolder ) fromCli.buildFolder = program.buildFolder;
+  if ( program.staticFolder ) fromCli.staticFolder = program.staticFolder;
+  if ( program.staticPrefix ) fromCli.staticPrefix = program.staticPrefix;
 
   return objectAssign( mediaConfiguration, fromCli )
 }
@@ -61,7 +62,8 @@ program
   .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
   .option('--skipBuild', 'Skips the site build as a step to ensure templates are okay before deploying.')
   .option('--gcloud [gcloud]', 'Path to Google Project JSON file.')
-  .option('--buildFolder [buildFolder]', 'Path to local build folder.')
+  .option('--staticFolder [staticFolder]', 'Path to local folder to push folder.')
+  .option('--staticPrefix [staticPrefix]', 'Prefix to add to the static directory being pushed.')
 
 
 program.command( 'deploys' )
@@ -285,13 +287,13 @@ program.command('clone-content-under <namespace>')
 
   });
 
-program.command('deploy-static <siteName>')
-    .description('Push a static snapshot of the current site, or --buildFolder.')
-    .action(function ( siteName ) {
+program.command('deploy-static')
+    .description('Push a static snapshot of the current site, or --staticFolder.')
+    .action(function () {
 
       var configuration = extendMediaConfigurationWithProgram();
 
-      rmwh.deployStatic( Object.assign( configuration, { siteName: siteName } ), onExit )
+      rmwh.deployStatic( configuration, onExit )
 
     })
 
