@@ -287,13 +287,13 @@ program.command('clone-content-under <namespace>')
 
   });
 
-program.command('deploy-static')
+program.command('deploy-static <siteName>')
     .description('Push a static snapshot of the current site, or --staticFolder.')
-    .action(function () {
+    .action(function ( siteName ) {
 
       var configuration = extendMediaConfigurationWithProgram();
 
-      rmwh.deployStatic( configuration, onExit )
+      rmwh.deployStatic( Object.assign( configuration, { siteName: siteName } ), onExit )
 
     })
 

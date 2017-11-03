@@ -74,7 +74,7 @@ After a site has reached the end of its cycle, there may be a desire to archive 
 
 `rm-wh deploy-static archived-site.risd.edu`
 The command will build the current site, and push the `.build` folder. If a `--buildFolder` flag is passed, the build process is skipped, and the `--buildFolder` passed in is uploaded to the site. If the site name does not include a `.`, then `.risd.systems` is appended to the site name.
-This method of deploying does not continually update as the CMS gets updated.
+This method of deploying does not continually update as the CMS gets updated. If no site name is provided, the command will look assume the directory that it was run in is a webhook site and look for a `.firebase.conf` file to determine the deploy configuration, and deploy the the buckets configured for the current branch.
 
 [node-npm]:https://nodejs.org/en/download/
 [git-flow]:https://github.com/nvie/gitflow
