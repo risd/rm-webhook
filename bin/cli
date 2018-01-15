@@ -98,6 +98,18 @@ program.command( 'deploys:remove <bucketName>' )
 
   } )
 
+program.command( 'map-domain <maskDomain> [contentDomain]' )
+  .description( 'Configure the maskDomain to pull content from the contentDomain.' )
+  .action( function ( maskDomain, contentDomain ) {
+
+    var configuration = extendMediaConfigurationWithProgram()
+    var cmdConfiguration = { maskDomain: maskDomain }
+    if ( contentDomain ) cmdConfiguration.contentDomain = contentDomain;
+
+    rmwh.mapDomain( Object.assign( configuration, cmdConfiguration ), onExit )
+
+  } )
+
 program.command( 'deploy' )
   .description( 'Push a webhook directory to server' )
   .action( function () {

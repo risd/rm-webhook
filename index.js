@@ -5,6 +5,7 @@ var configuration = require( './lib/configuration.js' )()
 module.exports = {
   configuration: configuration,
   deploys: configurer( wh.deploys ),
+  mapDomain: configurer( wh.mapDomain ),
   push: configurer( wh.push ),
   create: configurer( wh.create ),
   delete: configurer( wh.delete ),
