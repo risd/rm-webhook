@@ -10,6 +10,7 @@ module.exports = {
   create: configurer( wh.create ),
   delete: configurer( wh.delete ),
   init: configurer( wh.init ),
+  conf: configurer( wh.conf ),
   recreate: configurer( wh.recreate ),
   listSites: configurer( wh.listSites ),
   presetBuild: configurer( wh.presetBuild ),

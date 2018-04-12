@@ -150,6 +150,16 @@ program.command( 'init <siteName>' )
 
   } )
 
+program.command( 'conf <siteName>' )
+  .description( 'Initializes a site with configuration files. . Assumes node_modules are already installed.' )
+  .action( function ( siteName ) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.conf( Object.assign( configuration, { siteName: siteName } ), onExit )
+
+  } )
+
 program.command( 'recreate <siteName>' )
   .description( 'Recreates a site using the last version of the site uploaded to the webhook servers.' )
   .action( function ( siteName ) {
