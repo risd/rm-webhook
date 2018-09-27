@@ -20,6 +20,7 @@ module.exports = {
   serve: configurer( wh.serve ),
   cloneContentUnder: configurer( wh.cloneContentUnder ),
   deployStatic: configurer( wh.deployStatic ),
+  pushStatic: configurer( wh.pushStatic ),
 }
 
 /**
@@ -32,7 +33,6 @@ function configurer ( fn ) {
   
   function configured ( options, callback ) {
     if ( typeof options === 'function' ) options = {}
-    if ( typeof callback === 'undefined' ) callback = noop;
 
     if ( options.siteName ) options.siteName = optionallyAddDomain( options.siteName )
     
@@ -43,8 +43,6 @@ function configurer ( fn ) {
 
   return configured;
 }
-
-function noop () {}
 
 /**
  * Expects a site name. If there is a `.` in the name, a domain is assumed

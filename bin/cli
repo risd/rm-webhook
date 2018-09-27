@@ -30,6 +30,7 @@ function extendMediaConfigurationWithProgram () {
   if ( program.grunt ) fromCli.grunt = program.grunt;
   if ( program.email ) fromCli.email = program.email;
   if ( program.cache ) fromCli.cache = program.cache;
+  if ( program.debug ) fromCli.debug = program.debug;
   if ( program.types ) fromCli.types = program.types;
   if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
   if ( program.gcloud ) fromCli.gcloud = program.gcloud;
@@ -59,6 +60,7 @@ program
   .option( '-g, --grunt [gruntPath]', 'Use this grunt executable over the default one (grunt)' )
   .option( '-e, --email [email]', 'The e-mail address to use when using the --token option' )
   .option( '-c, --cache [cacheDir]', 'Sets the directory to use for npm cache' )
+  .option('-d, --debug', 'Set to debug mode. Logs out progress through processes.')
   .option('--types [contentTypes]', 'Clone these content types. If omitted, all content types are cloned.')
   .option('--skipBuild', 'Skips the site build as a step to ensure templates are okay before deploying.')
   .option('--gcloud [gcloud]', 'Path to Google Project JSON file.')
@@ -319,12 +321,22 @@ program.command('deploy-static [siteName]')
 
     })
 
+program.command('push-static [domain]')
+  .description('Push a static directory (--staticFolder) to the domain passed in as the first argument, augmented by the current git branch (or --branch value).')
+  .action(function (domain) {
+
+    var configuration = extendMediaConfigurationWithProgram();
+
+    rmwh.pushStatic( Object.assign( configuration, { baseDomain: domain } ) )
+
+  })
+
 program.command('echo-options')
   .description('Echos options passed into this command, used for debugging')
   .action(function() {
     
     var configuration = extendMediaConfigurationWithProgram();
-
+    
     console.log( JSON.stringify( configuration, null, 2 ) )
 
   });
