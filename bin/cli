@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var debug = require('debug')('rm-wh:cli');
-var objectAssign = require( 'object-assign' );
 
 var program = require( 'commander' )
 // var usage = fs.readFileSync(__dirname + '/usage.md').toString();
@@ -37,7 +36,7 @@ function extendMediaConfigurationWithProgram () {
   if ( program.staticFolder ) fromCli.staticFolder = program.staticFolder;
   if ( program.staticPrefix ) fromCli.staticPrefix = program.staticPrefix;
 
-  return objectAssign( mediaConfiguration, fromCli )
+  return Object.assign( mediaConfiguration, fromCli )
 }
 
 function onExit ( error ) {
