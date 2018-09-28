@@ -18,6 +18,6 @@
   "dependencies": {
     "commander": "^2.9.0",
     "debug": "^2.2.0",
-    "wh": "github:risd/webhook#1.1.8"
+    "wh": "github:risd/webhook#1.1.9"
   }
 }
