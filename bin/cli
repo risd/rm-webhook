@@ -8,14 +8,13 @@ var wh = require('wh').lib;
 
 var rmwh = require( '../index.js' )
 
-var mediaConfiguration = require( '../lib/configuration.js' )()
-
 function extendMediaConfigurationWithProgram () {
   // A subset of keys from `program` are configuration, and not all,
   // so we pull out the ones that we want and store them in `fromCli`
   var fromCli = {}
 
-  if ( program.firebase ) fromCli.firebaseName = program.firebase;
+  if ( program.firebase ) fromCli.firebase = program.firebase;
+  if ( program.firebaseAPIKey ) fromCli.firebaseAPIKey = program.firebaseAPIKey;
   if ( program.token ) fromCli.firebaseToken = program.token;
   if ( program.server ) fromCli.server = program.server;
   if ( program.branch ) fromCli.branch = program.branch;
@@ -35,6 +34,11 @@ function extendMediaConfigurationWithProgram () {
   if ( program.gcloud ) fromCli.gcloud = program.gcloud;
   if ( program.staticFolder ) fromCli.staticFolder = program.staticFolder;
   if ( program.staticPrefix ) fromCli.staticPrefix = program.staticPrefix;
+
+  var configurationFilePath = program.configuration
+    ? program.configuration
+    : false;
+  var mediaConfiguration = require( '../lib/configuration.js' )( configurationFilePath )
 
   return Object.assign( mediaConfiguration, fromCli )
 }
@@ -65,6 +69,8 @@ program
   .option('--gcloud [gcloud]', 'Path to Google Project JSON file.')
   .option('--staticFolder [staticFolder]', 'Path to local folder to push folder.')
   .option('--staticPrefix [staticPrefix]', 'Prefix to add to the static directory being pushed.')
+  .option('--configuration [configurationFilePath]', 'Path to local json file to be used as basis for CLI configuration.')
+  .option('--firebaseAPIKey [firebaseAPIKey]', 'The Firebase web API key to use.')
 
 
 program.command( 'deploys' )
