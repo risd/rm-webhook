@@ -215,7 +215,7 @@ program.command( 'backup <toFile>' )
 
     var backupOptions = {
       all: true,
-      toFile: toFile
+      toFile: toFile || 'backup.json'
     }
 
     rmwh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
