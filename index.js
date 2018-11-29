@@ -37,7 +37,7 @@ function configurer ( fn ) {
     if ( options.siteName ) options.siteName = optionallyAddDomain( options.siteName )
     
     Object.assign( configuration, options )
-    
+
     fn( configuration, callback )
   }
 

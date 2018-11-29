@@ -4,7 +4,7 @@ var debug = require('debug')('rm-wh:cli');
 
 var program = require( 'commander' )
 // var usage = fs.readFileSync(__dirname + '/usage.md').toString();
-var wh = require('wh').lib;
+var wh = require('@risd/wh').lib;
 
 var rmwh = require( '../index.js' )
 
@@ -13,9 +13,9 @@ function extendMediaConfigurationWithProgram () {
   // so we pull out the ones that we want and store them in `fromCli`
   var fromCli = {}
 
-  if ( program.firebase ) fromCli.firebase = program.firebase;
+  if ( program.firebase ) fromCli.firebaseName = program.firebase;
   if ( program.firebaseAPIKey ) fromCli.firebaseAPIKey = program.firebaseAPIKey;
-  if ( program.token ) fromCli.firebaseToken = program.token;
+  if ( program.firebaseToken ) fromCli.firebaseToken = program.firebaseToken;
   if ( program.server ) fromCli.server = program.server;
   if ( program.branch ) fromCli.branch = program.branch;
   if ( program.http ) fromCli.http = program.http;
@@ -29,7 +29,6 @@ function extendMediaConfigurationWithProgram () {
   if ( program.email ) fromCli.email = program.email;
   if ( program.cache ) fromCli.cache = program.cache;
   if ( program.debug ) fromCli.debug = program.debug;
-  if ( program.types ) fromCli.types = program.types;
   if ( program.skipBuild ) fromCli.skipBuild = program.skipBuild;
   if ( program.gcloud ) fromCli.gcloud = program.gcloud;
   if ( program.staticFolder ) fromCli.staticFolder = program.staticFolder;
@@ -50,7 +49,7 @@ function onExit ( error ) {
 
 program
   .option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
-  .option( '-t, --token [authToken]', 'Use this auth token for firebase instead of prompting for login' )
+  .option( '-t, --firebaseToken [firebaseToken]', 'Use this auth token for firebase instead of prompting for login' )
   .option( '-s, --server [uploadserver]', 'Use this server when uploading files, for self hosting mode' )
   .option( '--branch [branch]', 'Use this git branch instead of the current branch' )
   .option( '--http', 'Use http instead of default https as the server protocol' )
@@ -71,6 +70,7 @@ program
   .option('--staticPrefix [staticPrefix]', 'Prefix to add to the static directory being pushed.')
   .option('--configuration [configurationFilePath]', 'Path to local json file to be used as basis for CLI configuration.')
   .option('--firebaseAPIKey [firebaseAPIKey]', 'The Firebase web API key to use.')
+  .option('--platformName [platformName]', 'The name of the webhook publishing platform instance.')
 
 
 program.command( 'deploys' )
@@ -215,7 +215,7 @@ program.command( 'backup <toFile>' )
 
     var backupOptions = {
       all: true,
-      toFile: toFile
+      toFile: toFile || 'backup.json'
     }
 
     rmwh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
