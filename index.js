@@ -1,26 +1,31 @@
-var debug = require('debug')('rm-wh:index');
-var wh = require( './lib/wh' );
-var configuration = require( './lib/configuration.js' )()
+var debug = require('debug')('rm-wh:index')
+var wh = require( './lib/wh' )
+var configurationForPath = require( './lib/configuration.js' )
+var optionallyAddDomain = require( './optionally-add-domain.js' )
 
-module.exports = {
-  configuration: configuration,
-  deploys: configurer( wh.deploys ),
-  mapDomain: configurer( wh.mapDomain ),
-  push: configurer( wh.push ),
-  create: configurer( wh.create ),
-  delete: configurer( wh.delete ),
-  init: configurer( wh.init ),
-  conf: configurer( wh.conf ),
-  recreate: configurer( wh.recreate ),
-  listSites: configurer( wh.listSites ),
-  presetBuild: configurer( wh.presetBuild ),
-  restore: configurer( wh.restore ),
-  update: configurer( wh.update ),
-  resetKeys: configurer( wh.resetKeys ),
-  serve: configurer( wh.serve ),
-  cloneContentUnder: configurer( wh.cloneContentUnder ),
-  deployStatic: configurer( wh.deployStatic ),
-  pushStatic: configurer( wh.pushStatic ),
+module.exports = function ( configurationPath ) {
+  var configuration = configurationForPath( configurationPath )
+
+  return {
+    configuration: configuration,
+    deploys: configurer( configuration, wh.deploys ),
+    mapDomain: configurer( configuration, wh.mapDomain ),
+    push: configurer( configuration, wh.push ),
+    create: configurer( configuration, wh.create ),
+    delete: configurer( configuration, wh.delete ),
+    init: configurer( configuration, wh.init ),
+    conf: configurer( configuration, wh.conf ),
+    recreate: configurer( configuration, wh.recreate ),
+    listSites: configurer( configuration, wh.listSites ),
+    presetBuild: configurer( configuration, wh.presetBuild ),
+    restore: configurer( configuration, wh.restore ),
+    update: configurer( configuration, wh.update ),
+    resetKeys: configurer( configuration, wh.resetKeys ),
+    serve: configurer( configuration, wh.serve ),
+    cloneContentUnder: configurer( configuration, wh.cloneContentUnder ),
+    deployStatic: configurer( configuration, wh.deployStatic ),
+    pushStatic: configurer( configuration, wh.pushStatic ),
+  }
 }
 
 /**
@@ -29,12 +34,12 @@ module.exports = {
  * @param  {Function} fn          The webhook function to pass configuration to
  * @return {Function} configured  The interface for the function for the user or CLI to use
  */
-function configurer ( fn ) {
+function configurer ( configuration, fn ) {
   
   function configured ( options, callback ) {
     if ( typeof options === 'function' ) options = {}
 
-    if ( options.siteName ) options.siteName = optionallyAddDomain( options.siteName )
+    if ( configuration.domain && options.siteName ) options.siteName = optionallyAddDomain( configuraiton.domain, options.siteName )
     
     Object.assign( configuration, options )
 
@@ -42,27 +47,4 @@ function configurer ( fn ) {
   }
 
   return configured;
-}
-
-/**
- * Expects a site name. If there is a `.` in the name, a domain is assumed
- * otherwise, `configuration.domain` is appened as the domain
- * 
- * @param  {string} site The name of the site
- * @return {string} site The name of the site with 
- */
-function optionallyAddDomain ( site ) {
-  if ( typeof site !== 'string' ) return null;
-
-  var optionalDomain = configuration.domain;
-  
-  var containsTLD = function () {
-    var indexOfPeriod = site.indexOf( '.' );
-    return indexOfPeriod === -1 ? false : true;
-  }
-
-  var siteHasTLD = containsTLD( site );
-  if ( siteHasTLD === true ) return site;
-  else return [ site, optionalDomain ].join( '.' );
-
 }
