@@ -4,11 +4,11 @@ var debug = require('debug')('rm-wh:cli');
 
 var program = require( 'commander' )
 // var usage = fs.readFileSync(__dirname + '/usage.md').toString();
+var optionallyAddDomain = require( '../lib/optionally-add-domain.js' )
 var wh = require('@risd/wh').lib;
 
-var rmwh = require( '../index.js' )
-
-function extendMediaConfigurationWithProgram () {
+function extendMediaConfigurationWithProgram ( positionalArguments ) {
+  if ( ! positionalArguments ) positionalArguments = {}
   // A subset of keys from `program` are configuration, and not all,
   // so we pull out the ones that we want and store them in `fromCli`
   var fromCli = {}
@@ -38,6 +38,9 @@ function extendMediaConfigurationWithProgram () {
     ? program.configuration
     : false;
   var mediaConfiguration = require( '../lib/configuration.js' )( configurationFilePath )
+
+  if ( positionalArguments.siteName && mediaConfiguration.domain )
+    fromCli.siteName = optionallyAddDomain( mediaConfiguration.domain, positionalArguments.siteName )
 
   return Object.assign( mediaConfiguration, fromCli )
 }
@@ -79,7 +82,7 @@ program.command( 'deploys' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.deploys( configuration, onExit )
+    wh.deploys( configuration, onExit )
 
   } )
 
@@ -90,7 +93,7 @@ program.command( 'deploys:set <bucketName>' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.deploys( Object.assign( configuration, { bucketSet: bucketName } ), onExit )
+    wh.deploys( Object.assign( configuration, { bucketSet: bucketName } ), onExit )
 
   } )
 
@@ -101,7 +104,7 @@ program.command( 'deploys:remove <bucketName>' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.deploys( Object.assign( configuration, { bucketRemove: bucketName } ), onExit )
+    wh.deploys( Object.assign( configuration, { bucketRemove: bucketName } ), onExit )
 
   } )
 
@@ -113,7 +116,7 @@ program.command( 'map-domain <maskDomain> [contentDomain]' )
     var cmdConfiguration = { maskDomain: maskDomain }
     if ( contentDomain ) cmdConfiguration.contentDomain = contentDomain;
 
-    rmwh.mapDomain( Object.assign( configuration, cmdConfiguration ), onExit )
+    wh.mapDomain( Object.assign( configuration, cmdConfiguration ), onExit )
 
   } )
 
@@ -123,7 +126,7 @@ program.command( 'deploy' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.push( configuration, onExit )
+    wh.push( configuration, onExit )
 
   } )
 
@@ -131,9 +134,9 @@ program.command( 'create <siteName>' )
   .description( 'Create a new webhook site.' )
   .action( function ( siteName ) {
 
-    var configuration = extendMediaConfigurationWithProgram();
+    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    rmwh.create( Object.assign( configuration, { siteName: siteName } ), onExit )
+    wh.create( configuration, onExit )
 
   } )
 
@@ -141,9 +144,9 @@ program.command( 'delete <siteName>' )
   .description( 'Delete a site from webhook' )
   .action( function ( siteName ) {
 
-    var configuration = extendMediaConfigurationWithProgram();
+    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    rmwh.delete( Object.assign( configuration, { siteName: siteName } ), onExit )
+    wh.delete( configuration, onExit )
 
   }, onExit )
 
@@ -151,9 +154,9 @@ program.command( 'init <siteName>' )
   .description( 'Initializes a site with configuration files' )
   .action( function ( siteName ) {
 
-    var configuration = extendMediaConfigurationWithProgram();
+    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    rmwh.init( Object.assign( configuration, { siteName: siteName } ), onExit )
+    wh.init( configuration, onExit )
 
   } )
 
@@ -161,9 +164,9 @@ program.command( 'conf <siteName>' )
   .description( 'Initializes a site with configuration files. . Assumes node_modules are already installed.' )
   .action( function ( siteName ) {
 
-    var configuration = extendMediaConfigurationWithProgram();
+    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    rmwh.conf( Object.assign( configuration, { siteName: siteName } ), onExit )
+    wh.conf( configuration, onExit )
 
   } )
 
@@ -171,9 +174,9 @@ program.command( 'recreate <siteName>' )
   .description( 'Recreates a site using the last version of the site uploaded to the webhook servers.' )
   .action( function ( siteName ) {
 
-    var configuration = extendMediaConfigurationWithProgram();
+    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    rmwh.recreate( Object.assign( configuration, { siteName: siteName } ), onExit )
+    wh.recreate( configuration, onExit )
     
   } );
 
@@ -183,7 +186,7 @@ program.command( 'list-sites' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.listSites( configuration, onExit )
+    wh.listSites( configuration, onExit )
     
   } )
 
@@ -193,7 +196,7 @@ program.command('preset-build')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.presetBuild( Object.assign( configuration, { all: false } ), onExit )
+    wh.presetBuild( Object.assign( configuration, { all: false } ), onExit )
 
   } )
 
@@ -203,7 +206,7 @@ program.command('preset-build-all')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.presetBuild( Object.assign( configuration, { all: true } ), onExit )
+    wh.presetBuild( Object.assign( configuration, { all: true } ), onExit )
 
   } )
 
@@ -218,7 +221,7 @@ program.command( 'backup <toFile>' )
       toFile: toFile || 'backup.json'
     }
 
-    rmwh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
+    wh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
 
   } )
 
@@ -233,7 +236,7 @@ program.command( 'restore <fromFile>' )
       fromFile: fromFile
     }
 
-    rmwh.restore( Object.assign( configuration, restoreOptions ), onExit )
+    wh.restore( Object.assign( configuration, restoreOptions ), onExit )
 
   } )
 
@@ -243,7 +246,7 @@ program.command('update')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.update( configuration, onExit )
+    wh.update( configuration, onExit )
 
   });
 
@@ -253,7 +256,7 @@ program.command('push')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.push( configuration, onExit )
+    wh.push( configuration, onExit )
 
   });
 
@@ -263,7 +266,7 @@ program.command('reset-keys')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.resetKeys( configuration, onExit )
+    wh.resetKeys( configuration, onExit )
 
   })
 
@@ -273,7 +276,7 @@ program.command('reset-keys:sites')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.resetKeys( Object.assign( configuration, { resetUserPasswords: false } ), onExit )
+    wh.resetKeys( Object.assign( configuration, { resetUserPasswords: false } ), onExit )
 
   })
 
@@ -283,7 +286,7 @@ program.command('reset-keys:sites')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.resetKeys( Object.assign( configuration, { resetSiteKeys: false } ), onExit )
+    wh.resetKeys( Object.assign( configuration, { resetSiteKeys: false } ), onExit )
 
   })
 
@@ -293,7 +296,7 @@ program.command('serve [port]')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.serve( Object.assign( configuration, { port: port } ), onExit )
+    wh.serve( Object.assign( configuration, { port: port } ), onExit )
 
   });
 
@@ -312,7 +315,7 @@ program.command('clone-content-under <namespace>')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.cloneContentUnder( Object.assign( configuration, cloneOptions ), onExit )
+    wh.cloneContentUnder( Object.assign( configuration, cloneOptions ), onExit )
 
   });
 
@@ -320,9 +323,9 @@ program.command('deploy-static [siteName]')
     .description('Push a static snapshot of the current site, or --staticFolder.')
     .action(function ( siteName ) {
 
-      var configuration = extendMediaConfigurationWithProgram();
+      var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-      rmwh.deployStatic( Object.assign( configuration, { siteName: siteName } ), onExit )
+      wh.deployStatic( configuration, onExit )
 
     })
 
@@ -332,7 +335,7 @@ program.command('push-static [domain]')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    rmwh.pushStatic( Object.assign( configuration, { baseDomain: domain } ) )
+    wh.pushStatic( Object.assign( configuration, { baseDomain: domain } ) )
 
   })
 
