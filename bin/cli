@@ -33,6 +33,7 @@ function extendMediaConfigurationWithProgram ( positionalArguments ) {
   if ( program.gcloud ) fromCli.gcloud = program.gcloud;
   if ( program.staticFolder ) fromCli.staticFolder = program.staticFolder;
   if ( program.staticPrefix ) fromCli.staticPrefix = program.staticPrefix;
+  if ( program.force ) fromCli.force = program.force;
 
   var configurationFilePath = program.configuration
     ? program.configuration
@@ -74,6 +75,7 @@ program
   .option('--configuration [configurationFilePath]', 'Path to local json file to be used as basis for CLI configuration.')
   .option('--firebaseAPIKey [firebaseAPIKey]', 'The Firebase web API key to use.')
   .option('--platformName [platformName]', 'The name of the webhook publishing platform instance.')
+  .option('--force [force]', 'Skip any interactive prompts to confirm command execution.')
 
 
 program.command( 'deploys' )
@@ -106,6 +108,31 @@ program.command( 'deploys:remove <bucketName>' )
 
     wh.deploys( Object.assign( configuration, { bucketRemove: bucketName } ), onExit )
 
+  } )
+
+program.command( 'github' )
+  .description( 'Display the current git user/repo configuration for the site.' )
+  .action( function () {
+    var configuration = extendMediaConfigurationWithProgram();
+
+    wh.github( configuration, onExit )
+  } )
+
+program.command( 'github:set <userRepo>' )
+  .description( 'Set the git user/repo configuration for the current site directory.' )
+  .action( function ( userRepo ) {
+    if ( typeof userRepo !== 'string' ) console.log( 'Set requires a user/repo name be passed in. For example: google/leveldb' )
+    var configuration = extendMediaConfigurationWithProgram();
+
+    wh.github( Object.assign( configuration, { gitSet: userRepo } ), onExit )
+  } )
+
+program.command( 'github:remove' )
+  .description( 'Remove the git user/repo configuration for the current site directory.' )
+  .action( function () {
+    var configuration = extendMediaConfigurationWithProgram();
+
+    wh.github( Object.assign( configuration, { gitRemove: true } ), onExit )
   } )
 
 program.command( 'map-domain <maskDomain> [contentDomain]' )
