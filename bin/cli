@@ -277,6 +277,14 @@ program.command('update')
 
   });
 
+program.command( 'update-sites [sitesMiniMatch]' )
+  .description( 'Update a series of sites for which you are the owner, and have git access to the repository.' )
+  .action( function ( sitesMiniMatch ) {
+    var configuration = extendMediaConfigurationWithProgram()
+
+    require( '../lib/update-sites' )( Object.assign( configuration, { sitesMiniMatch: sitesMiniMatch, } ), onExit )
+  })
+
 program.command('push')
   .description('Push webhook directory to server')
   .action(function () {
@@ -379,5 +387,3 @@ program.command('echo-options')
 program.parse( process.argv )
 
 if (!program.args.length) program.help();
-
-

@@ -1,6 +1,7 @@
 var debug = require('debug')('rm-wh:index')
 var wh = require( './lib/wh' )
 var configurationForPath = require( './lib/configuration.js' )
+var updateSites = require( './lib/update-sites.js' )
 var optionallyAddDomain = require( './optionally-add-domain.js' )
 
 module.exports = function ( configurationPath ) {
@@ -20,6 +21,7 @@ module.exports = function ( configurationPath ) {
     presetBuild: configurer( configuration, wh.presetBuild ),
     restore: configurer( configuration, wh.restore ),
     update: configurer( configuration, wh.update ),
+    updateSites: configurer( configuration, updateSites ),
     resetKeys: configurer( configuration, wh.resetKeys ),
     serve: configurer( configuration, wh.serve ),
     cloneContentUnder: configurer( configuration, wh.cloneContentUnder ),
