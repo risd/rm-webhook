@@ -16,9 +16,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@risd/wh": "^2.0.3",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
-    "@risd/wh": "^2.0.3"
+    "minimatch": "^3.0.4",
+    "semver-compare": "^1.0.0",
+    "trumpet": "^1.7.2"
   },
   "devDependencies": {
     "tape": "^4.9.1"
