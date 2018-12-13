@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@risd/wh": "^2.0.3",
+    "@risd/wh": "^2.0.5",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "minimatch": "^3.0.4",
