@@ -47,7 +47,7 @@ function extendMediaConfigurationWithProgram ( positionalArguments ) {
 }
 
 function onExit ( error ) {
-  if ( error ) console.log( error.message );
+  if ( error ) { console.log( error.message ); console.log( error.stack ); }
   process.exit();
 }
 
