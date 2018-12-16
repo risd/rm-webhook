@@ -1,6 +1,6 @@
 {
   "name": "rm-webhook",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "WebHook CLI wrapper for RISD Media self-hosted WebHook",
   "bin": {
     "rm-wh": "bin/cli"
@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@risd/wh": "^2.0.7",
+    "@risd/wh": "^2.0.9",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "minimatch": "^3.0.4",
