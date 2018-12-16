@@ -282,7 +282,22 @@ program.command( 'update-sites [sitesMiniMatch]' )
   .action( function ( sitesMiniMatch ) {
     var configuration = extendMediaConfigurationWithProgram()
 
-    require( '../lib/update-sites' )( Object.assign( configuration, { sitesMiniMatch: sitesMiniMatch, } ), onExit )
+    require( '../lib/update-sites' )( Object.assign( configuration, { sitesMiniMatch: sitesMiniMatch, } ), handleUpdates )
+
+    function handleUpdates ( error, results ) {
+      if ( ! error &&  results && Array.isArray( results.siteList ) ) {
+        var generateVersion = results.generateVersion;
+        var siteList = results.siteList;
+        var message = `Updated to ${ generateVersion }: \n${ siteListReport( siteList ) }`  
+        console.log( message )
+      }
+      onExit( error )
+    }
+
+    function siteListReport ( siteList ) {
+      var lines = siteList.map( function ( siteEntry ) { return `- ${ siteEntry.siteName }` } )
+      return lines.join( '\n' )
+    }
   })
 
 program.command('push')
