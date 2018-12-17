@@ -7,6 +7,19 @@ var generateExtract = require( '../lib/wh' ).util.generateExtract;
 
 module.exports = WHMigrations;
 
+/**
+ * Migrations expects two semver strings to compare.
+ * The first is the current site's version. The second
+ * is the version of the generator that will be used to
+ * update the site. Using these two, the function will
+ * return an array of promises that will execute tasks
+ * that align the current version, with what is expected
+ * of the updated version of the generator.
+ * 
+ * @param {string} currentVeresion Semver strings.
+ * @param {string} nextVersion     Semver strings.
+ * @return {object} migrations     An array of promises to resolve.
+ */
 function WHMigrations ( currentVeresion, nextVersion ) {
   var migrations = {
     '2.2.7': [

@@ -71,6 +71,8 @@ The `--generate` argument will be used to download a tarball that is used to mak
 
 For example: `rm-wh update-sites '!*edu*'` will update all non `edu` sites. This is useful on RISD webhook, as a way to update all sites that are compatible with the batch uploader. Extra configuration would have to go into making this comptable with the [`risd-edu`][risd-edu] repo, since that repo is a mono repo, with one package being a webhook site. This command expects that the git repo's it pulls from are webhook sites at their root.
 
+For each site that is being updated, the current `risd.systems` generator package semver value, saved in `package.json` under the key `["risd.systems"]["generate"]`, will be used to determine which migrations should be applied to the code base. The `update-sites` process will determine if there are any migrations to apply by comparing the current site generate semver against the update generate semver value. These migrations are functions that modify the code base to align with the update generator version that is being applied to the site. This is useful for capturing updates that occur outside of the scope of the typical site update, which only changes within the `libs`, `tasks`, `options` directories & the `package.json`.
+
 [minimatch]:https://www.npmjs.com/package/minimatch
 [rm-wh-generate]:https://github.com/risd/webhook-generate
 [risd-edu]:https://github.com/risd/risd-edu
