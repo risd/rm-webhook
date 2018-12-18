@@ -33,19 +33,30 @@ The values of which are in 1Password as a secure note under the title `rm-webhoo
 ### Usage
 
 ```
-rm-wh create <siteName>
-rm-wh init <siteName>
+rm-wh create {site-name}
+rm-wh init {site-name}
 rm-wh serve
+rm-wh push
+rm-wh github
+rm-wh github:set {user/repo}
+rm-wh github:remove
+rm-wh list-sites
 rm-wh deploy
-rm-wh backup <toFile>
-rm-wh restore <fromFile>
+rm-wh deploys
+rm-wh deploys:set {domain}
+rm-wh deploys:remove {domain}
+rm-wh map-domain {mask-domain} {content-domain}
+rm-wh backup {toFile}
+rm-wh restore {fromFile}
 rm-wh preset-build
 rm-wh preset-build-all
 rm-wh reset-keys
-rm-wh deploy-static
-rm-wh deploys
-rm-wh github
+rm-wh reset-keys:sites
+rm-wh reset-keys:users
+rm-wh deploy-static {domain}
+rm-wh push-static {domain}
 rm-wh update-sites
+rm-wh echo-options
 ```
 
 **rm-wh create**
@@ -56,6 +67,54 @@ Use this command to create a new website in webhook.
 
 If `site-name` does not include a top level domain, the `domain` key from the `--configuration` flag or default configuration will be used to create a full domain name.
 
+
+**rm-wh init**
+
+Use this command from within a webhook site directory. This will run `npm install` & subsequently prepare the `.firebase.conf` & `pages/cms.html` based on files within the `libs` directory.
+
+`rm-wh init {site-name}`
+
+If `site-name` does not include a top level domain, the `domain` key from the `--configuration` flag or default configuration will be used to create a full domain name.
+
+**rm-wh serve**
+
+**rm-wh push**
+
+**rm-wh github**
+
+**rm-wh github:set**
+
+**rm-wh github:remove**
+
+**rm-wh list-sites**
+
+**rm-wh deploy**
+
+**rm-wh deploys**
+
+**rm-wh deploys:set**
+
+**rm-wh deploys:remove**
+
+**rm-wh map-domain**
+
+**rm-wh backup**
+
+**rm-wh restore**
+
+**rm-wh preset-build**
+
+**rm-wh preset-build-all**
+
+**rm-wh reset-keys**
+
+**rm-wh reset-keys:sites**
+
+**rm-wh reset-keys:users**
+
+**rm-wh deploy-static**
+
+**rm-wh push-static**
 
 **rm-wh update-sites**
 
@@ -72,6 +131,8 @@ The `--generate` argument will be used to download a tarball that is used to mak
 For example: `rm-wh update-sites '!*edu*'` will update all non `edu` sites. This is useful on RISD webhook, as a way to update all sites that are compatible with the batch uploader. Extra configuration would have to go into making this comptable with the [`risd-edu`][risd-edu] repo, since that repo is a mono repo, with one package being a webhook site. This command expects that the git repo's it pulls from are webhook sites at their root.
 
 For each site that is being updated, the current `risd.systems` generator package semver value, saved in `package.json` under the key `["risd.systems"]["generate"]`, will be used to determine which migrations should be applied to the code base. The `update-sites` process will determine if there are any migrations to apply by comparing the current site generate semver against the update generate semver value. These migrations are functions that modify the code base to align with the update generator version that is being applied to the site. This is useful for capturing updates that occur outside of the scope of the typical site update, which only changes within the `libs`, `tasks`, `options` directories & the `package.json`.
+
+**rm-wh echo-options**
 
 [minimatch]:https://www.npmjs.com/package/minimatch
 [rm-wh-generate]:https://github.com/risd/webhook-generate
