@@ -28,6 +28,9 @@ function WHMigrations ( currentVeresion, nextVersion ) {
       copyVscode,
       copyBrowserslist,
     ],
+    '2.3.1': [
+      removeScriptMinification,
+    ]
   }
 
   var migrationsForVersion = Object.keys( migrations )
@@ -137,7 +140,67 @@ function copyBrowserslist ( options ) {
   return reportResponse( 'standardize-cms-style', options, tasks )  
 }
 
+function removeScriptMinification ( options ) {
+  // remove the `buildjs` comment from the base partial
+  var siteDirectory = options.siteDirectory;
+  
+  var tasks = [
+    removeSubsequentStringsFromFile( [
+      "<!-- build:js /static/javascript/minified.js -->",
+      "<!-- endbuild -->",
+    ],
+    path.join ( siteDirectory, 'templates', 'partials', 'base.html') ),
+  ]
+  
+  
+  return reportResponse( 'remove-script-minification', options, tasks )
+}
+
 /* migration helpers */
+
+function removeSubsequentStringsFromFile ( strings, filePath ) {
+  return new Promise( readFile )
+    .then( removeStrings )
+    .then( writeFile )
+
+  function readFile ( resolve, reject ) {
+    fs.readFile( filePath, handleFile )
+
+    function handleFile ( error, fileBuffer ) {
+      if ( error ) return reject( error )
+      resolve( fileBuffer.toString() )
+    }
+  }
+
+  function removeStrings ( fileContents ) {
+    var cursorPosition = 0;
+    strings.forEach( handleString )
+    return Promise.resolve( fileContents )
+
+    function handleString ( str ) {
+      var currentStringIndex = fileContents.indexOf( str, cursorPosition )
+      var currentStringLength = str.length;
+      fileContents = [
+        fileContents.slice( 0, currentStringIndex ),
+        fileContents.slice( currentStringIndex + currentStringLength ),
+      ].join('')
+      cursorPosition = currentStringIndex;
+    }
+  }
+
+  function writeFile ( fileContents ) {
+    return new Promise( writeFilePromise )
+
+    function writeFilePromise ( resolve, reject ) {
+      fs.writeFile( filePath, fileContents, handleFile ) 
+
+      function handleFile ( error ) {
+        if ( error ) return reject( error )
+        resolve()
+      }
+    }
+  }
+}
 
 function copyFileFor ( options ) {
   var generatePath = options.generatePath;
