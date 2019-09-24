@@ -259,8 +259,7 @@ program.command( 'restore <fromFile>' )
     var configuration = extendMediaConfigurationWithProgram();
 
     var restoreOptions = {
-      all: true,
-      fromFile: fromFile
+      fromFile: fromFile,
     }
 
     wh.restore( Object.assign( configuration, restoreOptions ), onExit )
