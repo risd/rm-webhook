@@ -2,7 +2,7 @@ var debug = require('debug')('rm-wh:index')
 var wh = require( './lib/wh' )
 var configurationForPath = require( './lib/configuration.js' )
 var updateSites = require( './lib/update-sites.js' )
-var optionallyAddDomain = require( './optionally-add-domain.js' )
+var optionallyAddDomain = require( './lib/optionally-add-domain.js' )
 
 module.exports = function ( configurationPath ) {
   var configuration = configurationForPath( configurationPath )
