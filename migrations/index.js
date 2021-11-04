@@ -1,5 +1,4 @@
 var semverCompare = require( 'semver-compare' )
-var trumpet = require( 'trumpet' )
 var path = require( 'path' )
 var fs = require( 'fs' )
 
