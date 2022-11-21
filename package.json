@@ -20,7 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@risd/wh": "^3.0.9",
+    "@risd/wh": "^3.0.10",
     "commander": "^2.9.0",
     "debug": "^4.1.0",
     "minimatch": "^3.0.4",
