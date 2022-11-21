@@ -7,6 +7,8 @@ var program = require( 'commander' )
 var optionallyAddDomain = require( '../lib/optionally-add-domain.js' )
 var wh = require('@risd/wh').lib;
 
+const cliCmd = 'rm-wh'
+
 function extendMediaConfigurationWithProgram ( positionalArguments ) {
   if ( ! positionalArguments ) positionalArguments = {}
   // A subset of keys from `program` are configuration, and not all,
@@ -46,11 +48,6 @@ function extendMediaConfigurationWithProgram ( positionalArguments ) {
   return Object.assign( mediaConfiguration, fromCli )
 }
 
-function onExit ( error ) {
-  if ( error ) { console.log( error.message ); console.log( error.stack ); }
-  process.exit();
-}
-
 program
   .option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
   .option( '-t, --firebaseToken [firebaseToken]', 'Use this auth token for firebase instead of prompting for login' )
@@ -80,200 +77,299 @@ program
 
 program.command( 'deploys' )
   .description( 'List all deploy configuration for the current webhook site' )
-  .action( function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.deploys( configuration, onExit )
+    try {
+      const { deploys } = await wh.deploys(configuration)
+      wh.deploys.cliLogSuccess({ deploys })
+    }
+    catch (error) {
+      wh.deploys.cliLogError(errror)
+    }
 
   } )
 
 program.command( 'deploys:set <bucketName>' )
   .description( 'Set a bucket as the deploy destination. Use the --branch flag to override setting the deploy to use the current branch\'s set of templates.' )
-  .action( function ( bucketName ) {
+  .action(async function ( bucketName ) {
     if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.deploys( Object.assign( configuration, { bucketSet: bucketName } ), onExit )
+  try {
+    const { deploys } = await wh.deploys( {
+      ...configuration,
+      {
+        bucketSet: bucketName,
+      }
+    })
+    wh.deploys.cliLogSuccess({ deploys })
+  }
+  catch (error) {
+    wh.deploys.cliLogError(errror)
+  }
 
   } )
 
 program.command( 'deploys:remove <bucketName>' )
   .description( 'Remove a bucket as a deploy destination.' )
-  .action( function ( bucketName ) {
+  .action(async function ( bucketName ) {
     if ( typeof bucketName !== 'string' ) console.log( 'Set requires a bucket name be passed in.' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.deploys( Object.assign( configuration, { bucketRemove: bucketName } ), onExit )
+    try {
+    const { deploys } = await wh.deploys( {
+      ...configuration,
+      bucketRemove: bucketName,
+    })
+    wh.deploys.cliLogSuccess({ deploys })
+  }
+  catch (error) {
+    wh.deploys.cliLogError(errror)
+  }
 
   } )
 
 program.command( 'github' )
   .description( 'Display the current git user/repo configuration for the site.' )
-  .action( function () {
+  .action(async function () {
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.github( configuration, onExit )
+    try {
+      const { siteName, github } = wh.github(configuration)  
+      wh.github.cliLogSuccessGet({ siteName, github })
+    }
+    catch (error) {
+      wh.github.cliLogError(error)
+    }
+    
   } )
 
 program.command( 'github:set <userRepo>' )
   .description( 'Set the git user/repo configuration for the current site directory.' )
-  .action( function ( userRepo ) {
+  .action(async function ( userRepo ) {
     if ( typeof userRepo !== 'string' ) console.log( 'Set requires a user/repo name be passed in. For example: google/leveldb' )
     var configuration = extendMediaConfigurationWithProgram();
-
-    wh.github( Object.assign( configuration, { gitSet: userRepo } ), onExit )
+    try {
+      const { siteName, github } = wh.github({
+        ...configuration,
+        gitSet: userRepo,
+      })  
+      wh.github.cliLogSuccessSet({ siteName, github })
+    }
+    catch (error) {
+      wh.github.cliLogError(error)
+    }
   } )
 
 program.command( 'github:remove' )
   .description( 'Remove the git user/repo configuration for the current site directory.' )
-  .action( function () {
+  .action(async function () {
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.github( Object.assign( configuration, { gitRemove: true } ), onExit )
+
+    try {
+      const { siteName } = wh.github({
+        ...configuration,
+        gitRemove: true,
+      })  
+      wh.github.cliLogSuccessRemove({ siteName })
+    }
+    catch (error) {
+      wh.github.cliLogError(error)
+    }
   } )
 
 program.command( 'map-domain <maskDomain> [contentDomain]' )
   .description( 'Configure the maskDomain to pull content from the contentDomain.' )
-  .action( function ( maskDomain, contentDomain ) {
+  .action(async function ( maskDomain, contentDomain ) {
 
     var configuration = extendMediaConfigurationWithProgram()
-    var cmdConfiguration = { maskDomain: maskDomain }
-    if ( contentDomain ) cmdConfiguration.contentDomain = contentDomain;
 
-    wh.mapDomain( Object.assign( configuration, cmdConfiguration ), onExit )
-
+    try {
+      await wh.mapDomain({
+        ...configuration,
+        maskDomain,
+        contentDomain,
+      })
+      wh.mapDomain.cliLogSuccess({ maskDomain, contentDomain })
+    }
+    catch (error) {
+      wh.mapDomain.cliLogError(error)
+    }
   } )
 
 program.command( 'deploy' )
   .description( 'Push a webhook directory to server' )
-  .action( function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.push( configuration, onExit )
-
+    try {
+      await wh.push(configuration)  
+      wh.push.cliLogSuccess()
+    }
+    catch (error) {
+      wh.push.cliLogError(error)
+    }
   } )
 
 program.command( 'create <siteName>' )
   .description( 'Create a new webhook site.' )
-  .action( function ( siteName ) {
+  .action(async function ( siteName ) {
 
     var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    wh.create( configuration, onExit )
+    try {
+      await wh.create( configuration )
+      wh.create.cliLogSuccess({ siteName: configuration.siteName })
+    }
+    catch (error) {
+      wh.create.cliLogError(error, { siteName: configuration.siteName })
+    }
+    
 
   } )
 
-program.command( 'delete <siteName>' )
-  .description( 'Delete a site from webhook' )
-  .action( function ( siteName ) {
-
-    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
-
-    wh.delete( configuration, onExit )
-
-  }, onExit )
-
 program.command( 'init <siteName>' )
   .description( 'Initializes a site with configuration files' )
-  .action( function ( siteName ) {
+  .action(async function ( siteName ) {
 
     var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    wh.init( configuration, onExit )
-
+    try {
+      await wh.init( configuration )  
+      wh.init.cliLogSuccess()
+    }
+    catch (error) {
+      wh.init.cliLogError(error)
+    }
   } )
 
 program.command( 'conf <siteName>' )
   .description( 'Initializes a site with configuration files. . Assumes node_modules are already installed.' )
-  .action( function ( siteName ) {
+  .action(async function ( siteName ) {
 
     var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
 
-    wh.conf( configuration, onExit )
+    try {
+      await wh.conf( configuration )  
+      wh.conf.cliLogSuccess()
+    }
+    catch (error) {
+      wh.conf.cliLogError(error, { platformName: configuration.platformName })
+    }
 
   } )
 
-program.command( 'recreate <siteName>' )
-  .description( 'Recreates a site using the last version of the site uploaded to the webhook servers.' )
-  .action( function ( siteName ) {
-
-    var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
-
-    wh.recreate( configuration, onExit )
-    
-  } );
-
 program.command( 'list-sites' )
   .description( 'Lists all the sites that the user is an owner/user on' )
-  .action( function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.listSites( configuration, onExit )
-    
+    try {
+      const { userSites } = await wh.listSites( configuration )
+      wh.listSites.cliLogSuccess({ userSites })
+    }
+    catch (error) {
+      wh.listSites.cliLogError(error)
+    }
   } )
 
 program.command('preset-build')
   .description('Generates a .preset-data.json file from a webhook directory')
-  .action(function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.presetBuild( Object.assign( configuration, { all: false } ), onExit )
+    try {
+      const { pathToWrite } = await wh.presetBuild({
+        ...configuration
+        all: false,
+      }) 
+      wh.cliLogSuccess({ pathToWrite })
+    }
+    catch (error) {
+      wh.presetBuild.cliLogError(error)
+    }
 
   } )
 
 program.command('preset-build-all')
   .description('Generates a .preset-data.json file from a webhook directory which includes data')
-  .action(function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.presetBuild( Object.assign( configuration, { all: true } ), onExit )
+    try {
+      const { pathToWrite } = await wh.presetBuild({
+        ...configuration
+        all: true,
+      }) 
+      wh.cliLogSuccess({ pathToWrite })
+    }
+    catch (error) {
+      wh.presetBuild.cliLogError(error)
+    }
 
   } )
 
 program.command( 'backup <toFile>' )
   .description( 'Generates a backup JSON file at the <toFile> from a webhook directory which includes data' )
-  .action( function ( toFile ) {
+  .action(async function ( toFile ) {
 
-    var configuration = extendMediaConfigurationWithProgram();
+    var configuration = extendMediaConfigurationWithProgram()
 
-    var backupOptions = {
-      all: true,
-      toFile: toFile || 'backup.json'
+    try {
+      const { pathToWrite } = await wh.presetBuild({
+        ...configuration
+        all: true,
+        toFile: toFile || 'backup.json',
+      }) 
+      wh.cliLogSuccess({ pathToWrite })
     }
-
-    wh.presetBuild( Object.assign( configuration, backupOptions ), onExit )
+    catch (error) {
+      wh.presetBuild.cliLogError(error)
+    }
 
   } )
 
 program.command( 'restore <fromFile>' )
-  .description('Restores database to state captured in backup file, such as one generated from `wh backup`')
-  .action(function (fromFile) {
+  .description('Restores database to state captured in backup file, such as one generated from `rm-wh backup`')
+  .action(async function (fromFile) {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    var restoreOptions = {
-      fromFile: fromFile,
+    try {
+      const { updated } = await wh.restore({
+        ...configuration,
+        fromFile,
+      }) 
+      wh.restore.cliLogSuccess({ fromFile, updated })
     }
-
-    wh.restore( Object.assign( configuration, restoreOptions ), onExit )
+    catch (error) {
+      wh.restore.cliLogError(error, { fromFile })
+    }
 
   } )
 
 program.command('update')
   .description('Updates a webhook site with the latest generate code')
-  .action(function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.update( configuration, onExit )
-
+    try {
+      await wh.update(configuration)
+      wh.update.cliLogSuccess({ cliCmd })
+    }
+    catch (error) {
+      wh.update.cliLogError(error)
+    }
   });
 
 program.command( 'update-sites [sitesMiniMatch]' )
@@ -301,81 +397,48 @@ program.command( 'update-sites [sitesMiniMatch]' )
 
 program.command('push')
   .description('Push webhook directory to server')
-  .action(function () {
+  .action(async function () {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.push( configuration, onExit )
-
-  });
-
-program.command('reset-keys')
-  .description('Resets user passwords and site keys.')
-  .action(function () {
-
-    var configuration = extendMediaConfigurationWithProgram();
-
-    wh.resetKeys( configuration, onExit )
-
-  })
-
-program.command('reset-keys:sites')
-  .description('Resets site keys.')
-  .action(function () {
-
-    var configuration = extendMediaConfigurationWithProgram();
-
-    wh.resetKeys( Object.assign( configuration, { resetUserPasswords: false } ), onExit )
-
-  })
-
- program.command('reset-keys:users')
-  .description('Resets site keys.')
-  .action(function () {
-
-    var configuration = extendMediaConfigurationWithProgram();
-
-    wh.resetKeys( Object.assign( configuration, { resetSiteKeys: false } ), onExit )
+    try {
+      await wh.push(configuration)
+      wh.push.cliLogSuccess()
+    }
+    catch (error) {
+      wh.push.cliLogError()
+    }
 
   })
 
 program.command('serve [port]')
   .description('Serves a webhook site locally')
-  .action(function (port) {
+  .action(async function (port) {
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.serve( Object.assign( configuration, { port: port } ), onExit )
-
-  });
-
-program.command('clone-content-under <namespace>')
-  .description('Clones content type and current data under a new namespace.')
-  .action(function (namespace) {
-    
-    var contentTypes = ((typeof program.types === 'string')
-      ? program.types.split(',')
-      : [] )
-
-    var cloneOptions = {
-      namespace: namespace,
-      contentTypes: contentTypes
+    try {
+      await wh.serve({
+        ...configuration,
+        port,
+      })
+    } catch (error) {
+      wh.serve.cliLogError(error)
     }
-
-    var configuration = extendMediaConfigurationWithProgram();
-
-    wh.cloneContentUnder( Object.assign( configuration, cloneOptions ), onExit )
-
   });
 
 program.command('deploy-static [siteName]')
     .description('Push a static snapshot of the current site, or --staticFolder.')
-    .action(function ( siteName ) {
+    .action(async function ( siteName ) {
 
-      var configuration = extendMediaConfigurationWithProgram( { siteName: siteName } );
+      var configuration = extendMediaConfigurationWithProgram( { siteName } )
 
-      wh.deployStatic( configuration, onExit )
-
+      try {
+        await wh.deployStatic(configuration)
+      }
+      catch (error) {
+        wh.deployStatic.cliLogError(error)
+      }
     })
 
 program.command('push-static [domain]')
@@ -384,7 +447,17 @@ program.command('push-static [domain]')
 
     var configuration = extendMediaConfigurationWithProgram();
 
-    wh.pushStatic( Object.assign( configuration, { baseDomain: domain } ) )
+    try {
+      const { directory, siteName, sitePath } = await wh.pushStatic({
+        ...configuration,
+        baseDomain: domain,
+      }) 
+      wh.pushStatic.cliLogSuccess({ directory, siteName, sitePath })
+    }
+    catch (error) {
+      wh.pushStatic.cliLogError(error)
+    }
+    
 
   })
 
