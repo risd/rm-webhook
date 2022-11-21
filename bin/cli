@@ -98,19 +98,16 @@ program.command( 'deploys:set <bucketName>' )
 
     var configuration = extendMediaConfigurationWithProgram();
 
-  try {
-    const { deploys } = await wh.deploys( {
-      ...configuration,
-      {
+    try {
+      const { deploys } = await wh.deploys({
+        ...configuration,
         bucketSet: bucketName,
-      }
-    })
-    wh.deploys.cliLogSuccess({ deploys })
-  }
-  catch (error) {
-    wh.deploys.cliLogError(errror)
-  }
-
+      })
+      wh.deploys.cliLogSuccess({ deploys })
+    }
+    catch (error) {
+      wh.deploys.cliLogError(errror)
+    }
   } )
 
 program.command( 'deploys:remove <bucketName>' )
@@ -288,7 +285,7 @@ program.command('preset-build')
 
     try {
       const { pathToWrite } = await wh.presetBuild({
-        ...configuration
+        ...configuration,
         all: false,
       }) 
       wh.cliLogSuccess({ pathToWrite })
@@ -307,7 +304,7 @@ program.command('preset-build-all')
 
     try {
       const { pathToWrite } = await wh.presetBuild({
-        ...configuration
+        ...configuration,
         all: true,
       }) 
       wh.cliLogSuccess({ pathToWrite })
@@ -326,7 +323,7 @@ program.command( 'backup <toFile>' )
 
     try {
       const { pathToWrite } = await wh.presetBuild({
-        ...configuration
+        ...configuration,
         all: true,
         toFile: toFile || 'backup.json',
       }) 
@@ -443,7 +440,7 @@ program.command('deploy-static [siteName]')
 
 program.command('push-static [domain]')
   .description('Push a static directory (--staticFolder) to the domain passed in as the first argument, augmented by the current git branch (or --branch value).')
-  .action(function (domain) {
+  .action(async function (domain) {
 
     var configuration = extendMediaConfigurationWithProgram();
 
