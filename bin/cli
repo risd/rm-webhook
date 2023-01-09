@@ -86,7 +86,7 @@ program.command( 'deploys' )
       wh.deploys.cliLogSuccess({ deploys })
     }
     catch (error) {
-      wh.deploys.cliLogError(errror)
+      wh.deploys.cliLogError(error)
     }
 
   } )
@@ -106,7 +106,7 @@ program.command( 'deploys:set <bucketName>' )
       wh.deploys.cliLogSuccess({ deploys })
     }
     catch (error) {
-      wh.deploys.cliLogError(errror)
+      wh.deploys.cliLogError(error)
     }
   } )
 
@@ -125,7 +125,7 @@ program.command( 'deploys:remove <bucketName>' )
     wh.deploys.cliLogSuccess({ deploys })
   }
   catch (error) {
-    wh.deploys.cliLogError(errror)
+    wh.deploys.cliLogError(error)
   }
 
   } )
