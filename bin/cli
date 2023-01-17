@@ -2,8 +2,8 @@
 
 var debug = require('debug')('rm-wh:cli');
 
+const {version} = require('../package.json')
 var program = require( 'commander' )
-// var usage = fs.readFileSync(__dirname + '/usage.md').toString();
 var optionallyAddDomain = require( '../lib/optionally-add-domain.js' )
 var wh = require('@risd/wh').lib;
 
@@ -49,6 +49,7 @@ function extendMediaConfigurationWithProgram ( positionalArguments ) {
 }
 
 program
+  .version(version)
   .option( '-f, --firebase [firebasename]', 'Use the specified firebase instead of webhook main, for self hosting mode' )
   .option( '-t, --firebaseToken [firebaseToken]', 'Use this auth token for firebase instead of prompting for login' )
   .option( '-s, --server [uploadserver]', 'Use this server when uploading files, for self hosting mode' )
@@ -89,7 +90,7 @@ program.command( 'deploys' )
       wh.deploys.cliLogError(error)
     }
 
-  } )
+  })
 
 program.command( 'deploys:set <bucketName>' )
   .description( 'Set a bucket as the deploy destination. Use the --branch flag to override setting the deploy to use the current branch\'s set of templates.' )
