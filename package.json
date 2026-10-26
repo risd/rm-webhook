@@ -1,13 +1,13 @@
 {
   "name": "rm-webhook",
-  "version": "3.0.9",
+  "version": "4.0.0",
   "description": "WebHook CLI wrapper for RISD Media self-hosted WebHook",
   "bin": {
     "rm-wh": "bin/cli"
   },
   "engines": {
-    "node": ">= 16.4",
-    "npm": ">= 7.18"
+    "node": ">= 22.13",
+    "npm": ">= 11"
   },
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@risd/wh": "^3.0.13",
+    "@risd/wh": "^4.0.0",
     "commander": "^2.9.0",
     "debug": "^4.1.0",
     "minimatch": "^3.0.4",
